@@ -273,7 +273,8 @@ docs/      arhitektura.md  metodologija.md  evaluacija.md  openapi.yaml  sudreg_
 - [x] stranica "Izvori i ažurnost" (uživo iz CKAN-a, JSONP)
 - [x] noćni GitHub Actions i deploy na Pages — workflowi napisani; **čeka secrets i uključivanje Pagesa (Domagoj)**
 - [x] dokumentacija (README, DATA_SOURCES, arhitektura, metodologija, openapi, DCAT-AP, scenarij videa)
-- [ ] video (snimanje 8.11.), test s korisnicima (5.11.), evaluacija NKD prijedloga na ~100 opisa (D7)
+- [x] evaluacija NKD prijedloga na 104 opisa (D7) — `docs/evaluacija_pretrage.md`
+- [ ] video (snimanje 8.11.), test s korisnicima (5.11.)
 
 **DALJNJI RAZVOJ** (spomenuti u videu, ne raditi):
 - obrti iz službenog agregata
@@ -354,7 +355,9 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
 - [x] Slaganje nakon mapiranja: 73,3 %, ispod praga. Odlučeno u D14.
 - [ ] Potvrditi pretpostavku iz D11 (neponderirani prosjek i SD po JLS-ovima) i popis odjeljaka "niža pouzdanost" u NKD 2025 (D3).
 - [ ] Razmotriti mid-p semafor (P(Y<O) + ½P(Y=O) < 0,10): manje konzervativan za male brojeve (0,7 % → 1,7 % "nedostaje"). Promjena D5 traži dogovor.
-- [ ] D7 evaluacija: ručno označiti ~100 opisa ideja i izmjeriti top-1/top-3 točnost NKD prijedloga.
+- [x] D7 evaluacija (28.10.): 104 opisa u `data/reference/nkd_test_opisi.csv`. v1 izvan uzorka: top-1 87,5 %, top-3 89,4 %.
+      Nakon općih izmjena (sinonimi kao polje + ignoreFieldNorm, lagani stemmer, manja težina generičkih riječi): top-1 90,4 %, top-3 97,1 % (djelomično u uzorku).
+      Nepristrana procjena traži nove opise od korisnika (test 5.11.). Skripta: `npm run eval:pretraga` u `web/`.
 - [ ] Je li GitHub runner propušten na Sudreg API? Pokrenuti workflow "Test pristupa Sudreg API-ju" nakon dodavanja secrets.
 - [ ] Šifre u `pretezite_djelatnosti` s NKD 2002 (2 retka) nemaju pravilo mapiranja u D12.
       Ako oba postoje, odjeljak se poklapa u samo 68 % slučajeva. Ne znamo je li to promjena koda ili stvarna promjena djelatnosti.

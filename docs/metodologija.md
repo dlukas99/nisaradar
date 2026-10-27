@@ -78,9 +78,12 @@ Za diskretne brojeve je pravilo konzervativno. Kad je očekivanje malo (npr. μ 
 Fuse.js fuzzy pretraga nad službenim nazivima 651 razreda NKD 2025, nazivima odjeljaka i ručnim sinonimima
 (`data/reference/sinonimi.csv`, oko 100 razreda najčešćih ideja za samozapošljavanje).
 
-- Tekst se normalizira (bez dijakritika), uklanjaju se riječi bez značenja ("želim otvoriti mali ...").
-- Svaka riječ traži se zasebno, a bodovi se zbrajaju.
+- Tekst se normalizira (bez dijakritika), uklanjaju se riječi bez značenja ("želim otvoriti mali ...") i skidaju česti
+  hrvatski nastavci ("knjigovodstveni" ≈ "knjigovodstvo").
+- Svaka riječ traži se zasebno, a bodovi se zbrajaju. Generičke riječi ("servis", "ured", "radionica") imaju manju težinu.
 - Prikazuju se samo prijedlozi blizu najboljeg.
+- Evaluacija na 104 ručno označena opisa: top-1 90,4 %, top-3 97,1 % (prvo mjerenje izvan uzorka: 87,5 % i 89,4 %).
+  Detalji su u [evaluacija_pretrage.md](evaluacija_pretrage.md).
 
 ## 7. Tržišni odlomak (D8)
 

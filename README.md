@@ -54,6 +54,9 @@ GroupKFold po županijama: model svaki put predviđa jednu županiju koju nije v
 
 Model je bolji od baselinea u 63 od 71 modeliranih odjeljaka. Izazivač (gradient boosting) nije bio bolji.
 
+Prijedlog djelatnosti iz teksta: na 104 ručno označena opisa ideja točan razred je među prva tri prijedloga u 97,1 %
+slučajeva (top-1 90,4 %). Detalji su u [docs/evaluacija_pretrage.md](docs/evaluacija_pretrage.md).
+
 ## Arhitektura
 
 Rješenje nema poslužitelja: GitHub Actions svake noći pokreće Python pipeline, a GitHub Pages poslužuje statičku
