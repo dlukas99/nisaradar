@@ -1,0 +1,17 @@
+{
+  "n_oba_izvora": 4351,
+  "slaganje_odjeljaka": 0.733394621925994,
+  "n_jednoznacni": 3477,
+  "slaganje_jednoznacni": 0.7331032499280989,
+  "razreda_visestruko": 50,
+  "subjekata_u_obuhvatu": 174304,
+  "subjekata_s_odjeljkom": 132425,
+  "izvor_odjeljka": {
+    "pretežita 2025": 78848,
+    "glavna 2007": 51231,
+    "bez šifre": 41878,
+    "pretežita 2007": 2347
+  },
+  "prag_bez_sifre": 0.3772839995851812,
+  "odjeljaka": 83
+}

@@ -1,4 +1,10 @@
-requests
+﻿requests
 python-dotenv
 pandas
 pyarrow
+openpyxl
+pdfplumber
+numpy
+scipy
+statsmodels
+scikit-learn
