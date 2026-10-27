@@ -68,6 +68,31 @@ def _broj(x, znamenki=2):
     return round(float(x), znamenki)
 
 
+def ckan_azurnost(izvori: list[dict]) -> list[dict]:
+    """Za svaki izvor s CKAN id-om dohvati datum zadnje izmjene s data.gov.hr (package_show).
+
+    CKAN API ne šalje CORS zaglavlja, pa ga preglednik ne može uvijek čitati izravno; zato datum dohvaćamo i ovdje
+    pri svakom noćnom izvođenju. Greška mreže nije fatalna: tada je datum None.
+    """
+    import requests
+
+    out = []
+    for iz in izvori:
+        iz = dict(iz)
+        if iz.get("ckan"):
+            try:
+                r = requests.get("https://data.gov.hr/ckan/api/3/action/package_show", params={"id": iz["ckan"]},
+                                 timeout=30)
+                res = r.json()["result"]
+                iz["ckan_azurirano"] = res.get("metadata_modified")
+                iz["ckan_naslov"] = res.get("title")
+            except Exception as e:  # noqa: BLE001
+                print(f"  CKAN {iz['ckan']}: {type(e).__name__}")
+                iz["ckan_azurirano"] = None
+        out.append(iz)
+    return out
+
+
 def pisi(put: Path, obj) -> None:
     put.parent.mkdir(parents=True, exist_ok=True)
     put.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
@@ -177,7 +202,8 @@ def main() -> int:
         "osjetljivost": {k: _broj(v, 4) if isinstance(v, float) else v for k, v in ev["osjetljivost"].items()},
         "pragovi": {"nedostaje": 0.10, "zasiceno": 0.10, "interval": 0.80},
         "odjeljci_obrti": sorted(ODJELJCI_OBRTI),
-        "izvori": IZVORI,
+        "izvori": ckan_azurnost(IZVORI),
+        "izvori_provjereno": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     })
     velicina = sum(f.stat().st_size for f in WEB.rglob("*") if f.is_file())
     print(f"Izvezeno u {WEB}: {sum(1 for _ in WEB.rglob('*.json'))} JSON datoteka, {velicina / 1e6:.1f} MB")
