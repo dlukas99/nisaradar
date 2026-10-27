@@ -1,0 +1,88 @@
+odjeljak,naziv,podrucje,podrucje_naziv
+01,"Biljna i stočarska proizvodnja, lovstvo i uslužne djelatnosti povezane s njima",A,"Poljoprivreda, šumarstvo i ribarstvo"
+02,Šumarstvo i sječa drva,A,"Poljoprivreda, šumarstvo i ribarstvo"
+03,Ribolov i akvakultura,A,"Poljoprivreda, šumarstvo i ribarstvo"
+05,Vađenje ugljena i lignita,B,Rudarstvo i vađenje
+06,Vađenje sirove nafte i prirodnog plina,B,Rudarstvo i vađenje
+07,Vađenje metalnih ruda,B,Rudarstvo i vađenje
+08,Ostalo rudarstvo i vađenje,B,Rudarstvo i vađenje
+09,Pomoćne uslužne djelatnosti u rudarstvu,B,Rudarstvo i vađenje
+10,Proizvodnja prehrambenih proizvoda,C,Prerađivačka industrija
+11,Proizvodnja pića,C,Prerađivačka industrija
+12,Proizvodnja duhanskih proizvoda,C,Prerađivačka industrija
+13,Proizvodnja tekstila,C,Prerađivačka industrija
+14,Proizvodnja odjeće,C,Prerađivačka industrija
+15,Proizvodnja kože i srodnih proizvoda od drugih materijala,C,Prerađivačka industrija
+16,"Obrada drva i proizvodnja proizvoda od drva i pluta, osim namještaja; proizvodnja proizvoda od slame i pletarskih materijala",C,Prerađivačka industrija
+17,Proizvodnja papira i proizvoda od papira,C,Prerađivačka industrija
+18,Tiskanje i umnožavanje snimljenih zapisa,C,Prerađivačka industrija
+19,Proizvodnja koksa i rafiniranih naftnih proizvoda,C,Prerađivačka industrija
+20,Proizvodnja kemikalija i kemijskih proizvoda,C,Prerađivačka industrija
+21,Proizvodnja osnovnih farmaceutskih proizvoda i farmaceutskih pripravaka,C,Prerađivačka industrija
+22,Proizvodnja proizvoda od gume i plastike,C,Prerađivačka industrija
+23,Proizvodnja ostalih nemetalnih mineralnih proizvoda,C,Prerađivačka industrija
+24,Proizvodnja metala,C,Prerađivačka industrija
+25,"Proizvodnja gotovih metalnih proizvoda, osim strojeva i opreme",C,Prerađivačka industrija
+26,Proizvodnja računala te elektroničkih i optičkih proizvoda,C,Prerađivačka industrija
+27,Proizvodnja električne opreme,C,Prerađivačka industrija
+28,"Proizvodnja strojeva i uređaja, d. n.",C,Prerađivačka industrija
+29,"Proizvodnja motornih vozila, prikolica i poluprikolica",C,Prerađivačka industrija
+30,Proizvodnja ostalih prijevoznih sredstava,C,Prerađivačka industrija
+31,Proizvodnja namještaja,C,Prerađivačka industrija
+32,Ostala prerađivačka industrija,C,Prerađivačka industrija
+33,"Popravak, održavanje i instaliranje strojeva i opreme",C,Prerađivačka industrija
+35,"Opskrba električnom energijom, plinom, parom i klimatizacija",D,"Opskrba električnom energijom, plinom, parom i klimatizacija"
+36,"Zahvaćanje, pročišćavanje i opskrba vodom",E,"Opskrba vodom; uklanjanje otpadnih voda, gospodarenje otpadom te djelatnosti sanacije okoliša"
+37,Obrada otpadnih voda,E,"Opskrba vodom; uklanjanje otpadnih voda, gospodarenje otpadom te djelatnosti sanacije okoliša"
+38,"Sakupljanje, oporaba i zbrinjavanje otpada",E,"Opskrba vodom; uklanjanje otpadnih voda, gospodarenje otpadom te djelatnosti sanacije okoliša"
+39,Djelatnosti sanacije okoliša i ostale djelatnosti gospodarenja otpadom,E,"Opskrba vodom; uklanjanje otpadnih voda, gospodarenje otpadom te djelatnosti sanacije okoliša"
+41,Građenje stambenih i nestambenih zgrada,F,Građevinarstvo
+42,Građenje građevina niskogradnje,F,Građevinarstvo
+43,Specijalizirane građevinske djelatnosti,F,Građevinarstvo
+46,Trgovina na veliko,G,Trgovina na veliko i na malo
+47,Trgovina na malo,G,Trgovina na veliko i na malo
+49,Kopneni prijevoz i cjevovodni transport,H,Prijevoz i skladištenje
+50,Vodni prijevoz,H,Prijevoz i skladištenje
+51,Zračni prijevoz,H,Prijevoz i skladištenje
+52,Skladištenje i prateće djelatnosti u prijevozu,H,Prijevoz i skladištenje
+53,Poštanske i kurirske djelatnosti,H,Prijevoz i skladištenje
+55,Smještaj,I,Smještaj te priprema i usluživanje hrane
+56,Djelatnosti pripreme i usluživanja hrane i pića,I,Smještaj te priprema i usluživanje hrane
+58,Izdavačke djelatnosti,J,"Izdavačke djelatnosti, djelatnosti emitiranja te proizvodnje i distribucije sadržaja"
+59,"Proizvodnja filmova, videofilmova i televizijskog programa, djelatnosti snimanja zvučnih zapisa i izdavanja glazbenih zapisa",J,"Izdavačke djelatnosti, djelatnosti emitiranja te proizvodnje i distribucije sadržaja"
+60,"Emitiranje radijskog i televizijskog programa, djelatnosti novinskih agencija i ostale djelatnosti distribucije sadržaja",J,"Izdavačke djelatnosti, djelatnosti emitiranja te proizvodnje i distribucije sadržaja"
+61,Telekomunikacije,K,"Telekomunikacije, računalno programiranje, savjetovanje, računalna infrastruktura i ostale informacijske uslužne djelatnosti"
+62,"Računalno programiranje, savjetovanje i djelatnosti povezane s njima",K,"Telekomunikacije, računalno programiranje, savjetovanje, računalna infrastruktura i ostale informacijske uslužne djelatnosti"
+63,"Računalna infrastruktura, obrada podataka, usluge poslužitelja i ostale informacijske uslužne djelatnosti",K,"Telekomunikacije, računalno programiranje, savjetovanje, računalna infrastruktura i ostale informacijske uslužne djelatnosti"
+64,"Financijske uslužne djelatnosti, osim osiguranja i mirovinskih fondova",L,Financijske djelatnosti i djelatnosti osiguranja
+65,"Osiguranje, reosiguranje i mirovinski fondovi, osim obveznog socijalnog osiguranja",L,Financijske djelatnosti i djelatnosti osiguranja
+66,Pomoćne djelatnosti za financijske usluge i djelatnosti osiguranja,L,Financijske djelatnosti i djelatnosti osiguranja
+68,Poslovanje nekretninama,M,Poslovanje nekretninama
+69,Pravne i računovodstvene djelatnosti,N,"Stručne, znanstvene i tehničke djelatnosti"
+70,Upravljačke djelatnosti i savjetovanje u vezi s upravljanjem,N,"Stručne, znanstvene i tehničke djelatnosti"
+71,Arhitektonske djelatnosti i inženjerstvo; tehničko ispitivanje i analiza,N,"Stručne, znanstvene i tehničke djelatnosti"
+72,Znanstveno istraživanje i razvoj,N,"Stručne, znanstvene i tehničke djelatnosti"
+73,"Djelatnosti promidžbe, istraživanje tržišta i odnosi s javnošću",N,"Stručne, znanstvene i tehničke djelatnosti"
+74,"Ostale stručne, znanstvene i tehničke djelatnosti",N,"Stručne, znanstvene i tehničke djelatnosti"
+75,Veterinarske djelatnosti,N,"Stručne, znanstvene i tehničke djelatnosti"
+77,Djelatnosti iznajmljivanja i davanja u zakup (leasing),O,Administrativne i pomoćne uslužne djelatnosti
+78,Djelatnosti zapošljavanja,O,Administrativne i pomoćne uslužne djelatnosti
+79,"Putničke agencije, organizatori putovanja (turoperatori) i ostale rezervacijske usluge te djelatnosti povezane s njima",O,Administrativne i pomoćne uslužne djelatnosti
+80,Istražne i zaštitne djelatnosti,O,Administrativne i pomoćne uslužne djelatnosti
+81,Usluge u vezi s upravljanjem i održavanjem zgrada te djelatnosti uređenja i održavanja krajolika,O,Administrativne i pomoćne uslužne djelatnosti
+82,Uredske administrativne i pomoćne djelatnosti te ostale poslovne pomoćne djelatnosti,O,Administrativne i pomoćne uslužne djelatnosti
+84,Javna uprava i obrana; obvezno socijalno osiguranje,P,Javna uprava i obrana; obvezno socijalno osiguranje
+85,Obrazovanje,Q,Obrazovanje
+86,Djelatnosti zdravstvene zaštite,R,Djelatnosti zdravstvene zaštite i socijalne skrbi
+87,Djelatnosti socijalne skrbi sa smještajem,R,Djelatnosti zdravstvene zaštite i socijalne skrbi
+88,Djelatnosti socijalne skrbi bez smještaja,R,Djelatnosti zdravstvene zaštite i socijalne skrbi
+90,Umjetničko stvaralaštvo i izvedbene umjetnosti,S,"Umjetnost, sport i rekreacija"
+91,"Knjižnice, arhivi, muzeji i ostale kulturne djelatnosti",S,"Umjetnost, sport i rekreacija"
+92,Djelatnosti kockanja i klađenja,S,"Umjetnost, sport i rekreacija"
+93,"Sportske, zabavne i rekreacijske djelatnosti",S,"Umjetnost, sport i rekreacija"
+94,Djelatnosti članskih organizacija,T,Ostale uslužne djelatnosti
+95,"Popravak i održavanje računala, predmeta za osobnu uporabu i kućanstvo te motornih vozila i motocikala",T,Ostale uslužne djelatnosti
+96,Osobne uslužne djelatnosti,T,Ostale uslužne djelatnosti
+97,Djelatnosti kućanstava koja zapošljavaju poslugu,U,Djelatnosti kućanstava kao poslodavaca i djelatnosti kućanstava koja proizvode različitu robu i obavljaju različite usluge za vlastite potrebe
+98,Djelatnosti privatnih kućanstava koja proizvode različitu robu i obavljaju različite usluge za vlastite potrebe,U,Djelatnosti kućanstava kao poslodavaca i djelatnosti kućanstava koja proizvode različitu robu i obavljaju različite usluge za vlastite potrebe
+99,Djelatnosti izvanteritorijalnih organizacija i tijela,V,Djelatnosti izvanteritorijalnih organizacija i tijela

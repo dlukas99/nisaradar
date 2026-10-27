@@ -157,6 +157,9 @@ def main() -> int:
     mat_pret.to_parquet(SNAP / "matrica_pretezita.parquet", index=False)
     pok.to_parquet(SNAP / "jls_pokrivenost.parquet", index=False)
     raz.to_parquet(SNAP / "razredi.parquet", index=False)
+    # Meta dohvata (snapshot_id, vrijeme) ide uz agregate da se zna iz kojeg su snapshota.
+    if (FULL / "_meta.json").exists():
+        (SNAP / "sudreg_meta.json").write_text((FULL / "_meta.json").read_text(encoding="utf-8"), encoding="utf-8")
     (SNAP / "build_meta.json").write_text(json.dumps({
         **k, "subjekata_u_obuhvatu": int(len(d)), "subjekata_s_odjeljkom": int(len(s_odj)),
         "izvor_odjeljka": {k2: int(v) for k2, v in d.izvor.value_counts().items()},

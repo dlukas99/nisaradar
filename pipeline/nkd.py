@@ -29,8 +29,25 @@ def _ocisti(s: str) -> str:
     return " ".join(str(s).split())
 
 
+CACHE_ODJ = REF / "nkd2025_odjeljci.csv"
+CACHE_RAZ = REF / "nkd2025_razredi.csv"
+
+
 def tablice() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """(odjeljci, razredi). Odjeljci: odjeljak, naziv, podrucje, podrucje_naziv. Razredi: razred (npr. 47.11), naziv, odjeljak."""
+    """(odjeljci, razredi). Odjeljci: odjeljak, naziv, podrucje, podrucje_naziv. Razredi: razred (npr. 47.11), naziv, odjeljak.
+
+    Ako sirovi šifrarnik postoji (nakon dohvata), tablice se računaju iz njega i spremaju u data/reference/;
+    inače (npr. kod builda weba bez dohvata) čitaju se spremljene.
+    """
+    if not SIFRARNIK.exists():
+        return (pd.read_csv(CACHE_ODJ, dtype=str), pd.read_csv(CACHE_RAZ, dtype=str))
+    o, r = _iz_sifrarnika()
+    o.to_csv(CACHE_ODJ, index=False)
+    r.to_csv(CACHE_RAZ, index=False)
+    return o, r
+
+
+def _iz_sifrarnika() -> tuple[pd.DataFrame, pd.DataFrame]:
     n = _sifrarnik_2025()
     podrucja = {r.sifra: _ocisti(r.puni_naziv).capitalize() for r in n[n.sifra.str.len() == 1].itertuples()}
     zadnje, red = None, []
