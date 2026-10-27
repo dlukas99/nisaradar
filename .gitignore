@@ -1,0 +1,16 @@
+# Tajne: nikad u git
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Sirovi podaci (veliki, ponovno se dohvaćaju iz API-ja)
+data/raw/
+
+# Web
+node_modules/
+
+# OS
+.DS_Store
