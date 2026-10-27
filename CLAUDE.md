@@ -156,7 +156,11 @@ Ako se šifre ne slažu, spajaj po normaliziranom nazivu JLS-a i županiji te ru
   - **Brojke se ne korigiraju izmišljenim faktorom.**
   - Model radi **zasebno po odjeljku**. Ako je udio obrta u nekom odjeljku približno jednak u svim JLS-ovima, relativni deficit ostaje valjan.
   - Pristranost postoji samo ako se udio obrta razlikuje po regijama. To transparentno pišemo u UI-ju ("Pokrivenost: trgovačka društva i zadruge, bez obrta") i u videu.
-  - Odjeljci u kojima obično prevladavaju obrti dobivaju oznaku **"niža pouzdanost"**: 96 (osobne usluge, npr. frizeri), 43, 45, 56, 95, 01. Popis se dorađuje ako nađemo podatke.
+  - Odjeljci u kojima obično prevladavaju obrti dobivaju oznaku **"niža pouzdanost"**: 96 (osobne usluge, npr. frizeri), 43, 56, 95, 01. Popis se dorađuje ako nađemo podatke.
+  - **Usklađeno s NKD 2025 (PROVJERENO 27.10., D12):** odjeljci 01, 43, 56, 95 i 96 postoje. **Odjeljak 45 ne postoji u NKD 2025** i izbačen je iz popisa.
+    Popravak motornih vozila (obrtnička djelatnost) je sada razred 95.31 (motocikli 95.32) u odjeljku 95, koji je već na popisu.
+    Trgovina motornim vozilima prešla je u razrede 46.71, 46.72, 47.81 i 47.82 (odjeljci 46 i 47 nisu na popisu).
+    Jedini odjeljak NKD 2007 kojeg nema u NKD 2025 je 45, a NKD 2025 nema novih odjeljaka u odnosu na 2007.
   - Ako se nađe otvoreni agregat obrta, uvodi se kao dodatni izvor.
 - **D4. Model:** za svaki odjeljak *d* broj subjekata u JLS-u *j* modelira se kao `O_jd ~ NegBin(μ_jd, α_d)`.
   - Struktura: `log μ_jd = log(pop_j) + β_d · x_j`.
@@ -180,6 +184,27 @@ Ako se šifre ne slažu, spajaj po normaliziranom nazivu JLS-a i županiji te ru
 - **D9. Privatnost:** nikad ne dohvaćaj tablice o osobama (`osobe`, `ovlasti_osoba`, `subjekt_osoba`, članovi uprave).
   Javno objavljujemo samo agregate po JLS-u × odjeljku. Za pojedinačne subjekte dajemo samo poveznicu na službeni Sudski registar.
 - **D10. Licenca koda:** EUPL-1.2. Podaci se navode u `DATA_SOURCES.md` s izdavačem, poveznicom, licencom i datumom dohvata.
+- **D11. Subjekti bez NKD-a (27.10., mentor-revizor):** isključuju se iz modela, ali se broje.
+  - UI prikazuje "X % subjekata u ovoj općini nema šifru djelatnosti".
+  - Udio bez šifre računa se po JLS-u: nazivnik su tržišni subjekti sa sjedištem u JLS-u, a brojnik oni bez pretežite i bez glavne djelatnosti.
+  - JLS-ovi s udjelom više od 2 SD iznad prosjeka dobivaju oznaku **"niža pouzdanost"**. Pretpostavka implementacije (potvrditi):
+    neponderirani prosjek i SD preko svih JLS-ova u RH.
+  - Djelatnost se **ne pogađa** iz naziva tvrtke.
+  - Mjerenje: `pipeline/analiza_nkd.py`.
+- **D12. Verzija NKD-a (27.10., mentor-revizor):** analiza je u **NKD 2025 na razini odjeljka** (2 znamenke).
+  - Prvi izvor je pretežita djelatnost (`pretezite_djelatnosti`, verzija 2025). Ako je pretežita u NKD 2007, mapira se na 2025.
+  - Zamjenski izvor je `subjekti.glavna_djelatnost` (NKD 2007), mapirana na 2025 preko **službene DZS tablice korespondencije** NKD 2007 ↔ NKD 2025.
+    Tablica još nije pronađena. Ako ne postoji otvoreno, javiti Domagoju.
+  - Kad razred iz 2007 vodi u više odjeljaka 2025, uzima se najčešći, empirijski iz subjekata koji imaju obje šifre.
+  - Onih **68 % slaganja** (27.10.) vjerojatno je artefakt jer su uspoređeni odjeljci dviju različitih verzija.
+    Nakon mapiranja slaganje se ponovno mjeri na istoj verziji. **Ako je ispod 85 %, STATI i javiti prije nastavka.**
+- **D13. Postupci (27.10., mentor-revizor):** isključuju se samo postupci koji znače gašenje subjekta. Polje je `subjekti.postupak`.
+  - Šifrarnik `/vrste_postupaka` (PROVJERENO 27.10.): 1 Bez postupka, **2 Stečaj**, **3 Likvidacija**, 4 Pokrenuta predstečajna nagodba,
+    5 Odobrena predstečajna nagodba, 6 Otvoren predstečaj, 7 Potvrđen predstečajni sporazum.
+  - **Isključuje se `postupak` ∈ {2, 3}.** Zadržavaju se 1 i 4–7 (predstečajna nagodba i predstečaj su restrukturiranje, subjekt posluje).
+  - Brisanje: aktivni subjekti (`status` = 1) nisu brisani, pa nema dodatnog filtra (kod aktivnih nema ni polja `datum_brisanja`).
+  - Učinak (tržišni oblici, snapshot 1349): isključeno **4.801** (2.511 stečaj i 2.290 likvidacija), zadržano **174.307** od 179.108.
+    Skup vrijednosti u `subjekti.postupak` (1–7) odgovara šifrarniku.
 
 ## 5. Arhitektura (MVP bez poslužitelja)
 
@@ -276,24 +301,47 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
   još nije provjereno**, pa je ukupna odluka uvjetno GO do 29.10.
   - Pokrivenost NKD-a među tržišnim subjektima: pretežita 46,0 %, `glavna_djelatnost` 32,5 %, barem jedno 75,8 %, bez ikakve NKD šifre 43.371 (24,2 %).
     U OBŽ-u: barem jedno 78,8 %, bez NKD-a 1.524 (21,2 %).
-  - Kad subjekt ima oba izvora, odjeljak se poklapa u samo 68,0 % slučajeva (NKD 2025 prema NKD 2007).
+  - Kad subjekt ima oba izvora, odjeljak se poklapa u samo 68,0 % slučajeva (NKD 2025 prema NKD 2007). **Vjerojatni artefakt**: uspoređeni su odjeljci
+    dviju različitih verzija (vidi D12).
   - Puni dohvat 4 tablica trajao je 832 s (procjena iz smoke testa od 2,2 min bila je prenisko).
   - Spec je u dva slučaja netočan prema podacima: `drzava_id` za domaća sjedišta i `staleness` -1 (vidi 3.1).
+- 27.10. (navečer, pregled s mentorom-revizorom): doneseni D11 (subjekti bez NKD-a), D12 (NKD 2025 na razini odjeljka, mapiranje 2007 → 2025) i D13 (isključuju se
+  stečaj i likvidacija). D3 usklađen s NKD 2025: odjeljak 45 ne postoji, popravak motornih vozila je u 95.
+  - `pipeline/analiza_nkd.py` ponovio mjerenje: 174.304 tržišna subjekta u analizi (D2 + D13), 76,0 % ima šifru (OBŽ 78,8 %), bez šifre 41.877 (24,0 %).
+    Udio bez šifre po JLS-u: prosjek 21,4 %, SD 8,2 %, prag 37,7 %. Oznaku "niža pouzdanost" dobiva 19 od 556 JLS-ova (nijedan u OBŽ-u), većinom vrlo male općine
+    (15 JLS-ova ima manje od 10 subjekata). Beli Manastir ima 28,6 % (42/147), ispod praga.
 
 ## 10. Otvorena pitanja / NEPROVJERENO
 
 - [x] Točna polja v3 tablica `/sjedista` i `/pretezite_djelatnosti` (zatvoreno 27.10., vidi 3.1)
 - [x] Pravni oblici: popis i šifre za filtar D2 (zatvoreno 27.10., vidi D2)
-- [ ] **24 % tržišnih subjekata nema NKD šifru** (RH 43.371, OBŽ 1.524). Isključiti uz napomenu ili tražiti fallback (`predmeti_poslovanja`, NEPROVJERENO)? Najveći udio bez NKD-a ima godina osnivanja 2019. (43 %) i 2020. (17,5 %); 2.804 ih nema datum osnivanja.
-- [ ] **Dvije verzije NKD-a:** pretežita djelatnost je NKD 2025, `glavna_djelatnost` NKD 2007. Treba DZS tablicu korespondencije 2007 ↔ 2025 i odluku o prioritetu (zasad pretežita pa glavna).
+- [x] **24 % tržišnih subjekata nema NKD šifru** (RH 43.371, OBŽ 1.524): odlučeno u D11 (isključeni iz modela, broje se, oznaka po JLS-u). Najveći udio bez NKD-a ima godina osnivanja 2019. (43 %) i 2020. (17,5 %); 2.804 ih nema datum osnivanja.
+- [x] **Dvije verzije NKD-a:** odlučeno u D12 (NKD 2025, odjeljak, mapiranje 2007 → 2025). Otvoreno ispod: korespondencija i ponovno mjerenje slaganja.
+- [ ] Pronaći **službenu DZS tablicu korespondencije NKD 2007 ↔ NKD 2025**. Ako ne postoji otvoreno, javiti Domagoju (D12).
+- [ ] Nakon mapiranja ponovno izmjeriti slaganje odjeljaka na istoj verziji (prag 85 %, ispod toga stati; D12). Dosadašnjih 68 % uspoređivalo je različite verzije.
+- [ ] Potvrditi pretpostavku iz D11 (neponderirani prosjek i SD po JLS-ovima) i popis odjeljaka "niža pouzdanost" u NKD 2025 (D3) nakon mapiranja.
+- [ ] Šifre u `pretezite_djelatnosti` s NKD 2002 (2 retka) nemaju pravilo mapiranja u D12.
       Ako oba postoje, odjeljak se poklapa u samo 68 % slučajeva. Ne znamo je li to promjena koda ili stvarna promjena djelatnosti.
-- [ ] Subjekti u postupku (`postupak` ≠ 1, stečaj ili likvidacija; u uzorku od 1000 redaka oko 3,5 %) su još "aktivni". Uključiti ili ne?
+- [x] Subjekti u postupku: odlučeno u D13 (isključuju se stečaj i likvidacija, 4.801 tržišni subjekt).
 - [ ] Značenje `drzava_id` = 55 kod domaćih sjedišta (vjerojatno Hrvatska, provjeriti u `/drzave`).
 - [ ] **Spajanje šifre općine iz Sudrega (DGU šifra, npr. Osijek 3123, Virovitica 4910) s DZS-om i indeksom razvijenosti.** To je preostali uvjet GO/NO-GO.
-- [ ] Robusnost dohvata: veza se prekida pri većim stranicama; `fetch_sudreg.py` treba spremati stranice postupno i moći nastaviti.
+- [ ] Robusnost dohvata: veza se prekida pri većim stranicama. `fetch_sudreg.py` treba spremati stranice postupno (checkpoint) i moći nastaviti nakon prekida veze, uz isti `snapshot_id`.
 - [ ] Izvor i format Popisa 2021. po JLS-u s dobnim skupinama
 - [ ] Indeks razvijenosti (NN 3/2024) u strojno čitljivom obliku
 - [ ] Otvorene granice JLS-a (GeoJSON) i licenca
 - [ ] Postoji li otvoreni agregat obrta po JLS-u / NKD-u
 - [ ] Upit na open.data@mpudt.hr: kako se računa 60 bodova kad je ukupno "zbroj bodova članova Povjerenstva"; tko je voditelj tima
 - [ ] Administracija: mentor potvrđen? drugi student? svi prijavljeni do 30.10.?
+
+## 11. Sljedeći korak (ažurirano 27.10. navečer)
+
+1. **DZS Popis 2021. + indeks razvijenosti + provjera šifri JLS-a = zadnji uvjet GO/NO-GO.**
+   Sudregov `sifra_opcine` (DGU šifra; 556 JLS-ova, OBŽ 42) usporediti sa šiframa u DZS-u i u NN 3/2024.
+   Neuparene ručno provjeriti (vidi 3.3). Podaci idu u `data/reference/`.
+2. **DZS korespondencija NKD 2007 ↔ NKD 2025 i mapiranje po D12.**
+   Pronaći službenu tablicu (ako nije otvorena, javiti Domagoju). Mapirati `glavna_djelatnost` i NKD 2007 iz pretežite na odjeljak 2025.
+   Ponovno izmjeriti slaganje odjeljaka na istoj verziji. **Ispod 85 % stati i javiti prije nastavka.**
+3. **RANI TEST: minimalni GitHub Actions workflow** koji samo dohvati token i `/snapshots` iz Sudreg-a sa GitHub Secrets (bez dohvata podataka),
+   da vidimo propušta li API IP adrese GitHub runnera. Preduvjet: Domagoj dodaje secrets `SUDREG_CLIENT_ID` i `SUDREG_CLIENT_SECRET`
+   (GitHub repozitorij → Settings → Secrets and variables → Actions → New repository secret).
+4. `fetch_sudreg.py` s checkpointom po stranicama (nastavak nakon prekida veze, isti `snapshot_id`), vidi odjeljak 10.

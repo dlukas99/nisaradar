@@ -194,8 +194,9 @@ Tržišni oblici ukupno: **179.108**.
 | ima barem jedno | 75,8 % | 78,8 % |
 | nema nijednu NKD šifru | 43.371 (24,2 %) | 1.524 (21,2 %) |
 
-Ako subjekt ima oba izvora (4.771 slučaj), odjeljak (prve 2 znamenke) je isti u samo 68,0 % slučajeva.
-Uzrok nije utvrđen (promjena verzije klasifikacije ili stvarna promjena djelatnosti).
+Ako subjekt ima oba izvora (4.771 slučaj), odjeljak (prve 2 znamenke) je isti u samo 68,0 % slučajeva. To je vjerojatno artefakt jer su
+uspoređeni odjeljci dviju različitih verzija (NKD 2025 prema NKD 2007). Slaganje treba ponovno izmjeriti nakon mapiranja na istu verziju (D12).
+Brojke iz `pipeline/analiza_nkd.py` nakon D13: 174.304 subjekta u analizi, 76,0 % ima šifru, OBŽ 78,8 %.
 Udio subjekata bez NKD-a najveći je za godine osnivanja 2019. (43 %) i 2020. (17,5 %); 2.804 ih nema datum osnivanja.
 
 ### Što je ostalo neprovjereno

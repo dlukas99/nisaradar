@@ -12,5 +12,8 @@ data/raw/
 # Web
 node_modules/
 
+# Uređivač
+.vscode/
+
 # OS
 .DS_Store
