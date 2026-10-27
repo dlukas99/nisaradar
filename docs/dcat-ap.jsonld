@@ -1,0 +1,62 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "vcard": "http://www.w3.org/2006/vcard/ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@id": "https://dlukas99.github.io/nisaradar/#dataset",
+  "@type": "dcat:Dataset",
+  "dct:title": { "@value": "Indeks deficita djelatnosti po JLS-u (NišaRadar)", "@language": "hr" },
+  "dct:description": {
+    "@value": "Za svaki grad i općinu u RH (556) i svaki odjeljak NKD 2025.: stvarni broj aktivnih trgovačkih društava i zadruga iz Sudskog registra, očekivani broj prema statističkom modelu (negativna binomna regresija s brojem stanovnika, dobnom strukturom, indeksom razvijenosti, tipom JLS-a i stopom u ostatku županije), 80 % prediktivni interval i semafor (nedostaje / u ravnoteži / zasićeno). Agregirani podaci, bez pojedinačnih subjekata. Osvježava se svake noći.",
+    "@language": "hr"
+  },
+  "dct:publisher": { "@type": "foaf:Agent", "foaf:name": "Tim NišaRadar (Datathon Portala otvorenih podataka 2026.)" },
+  "dcat:contactPoint": { "@type": "vcard:Kind", "vcard:fn": "NišaRadar", "vcard:hasURL": { "@id": "https://github.com/dlukas99/nisaradar" } },
+  "dcat:theme": [
+    { "@id": "http://publications.europa.eu/resource/authority/data-theme/ECON" },
+    { "@id": "http://publications.europa.eu/resource/authority/data-theme/REGI" }
+  ],
+  "dcat:keyword": ["djelatnosti", "NKD 2025", "JLS", "poduzetništvo", "samozapošljavanje", "Sudski registar", "regionalni razvoj"],
+  "dct:spatial": { "@id": "http://publications.europa.eu/resource/authority/country/HRV" },
+  "dct:accrualPeriodicity": { "@id": "http://publications.europa.eu/resource/authority/frequency/DAILY" },
+  "dct:language": { "@id": "http://publications.europa.eu/resource/authority/language/HRV" },
+  "dct:license": { "@id": "https://data.gov.hr/id/licence/otvorena-dozvola-rh" },
+  "dct:source": [
+    { "@id": "https://data.gov.hr/ckan/dataset/sudski-registar" },
+    { "@id": "https://data.gov.hr/ckan/dataset/statistika-u-nizu-popis-stanovnistva-kucanstava-i-stanova-2021" },
+    { "@id": "https://data.gov.hr/ckan/dataset/upravne-jedinice-inspire" },
+    { "@id": "https://data.gov.hr/ckan/dataset/https-web-dzs-hr-app-klasus-default-aspx-lang-hr" }
+  ],
+  "dcat:landingPage": { "@id": "https://dlukas99.github.io/nisaradar/" },
+  "dcat:distribution": [
+    {
+      "@type": "dcat:Distribution",
+      "dct:title": "Metapodaci i sažetak (JSON)",
+      "dcat:accessURL": { "@id": "https://dlukas99.github.io/nisaradar/data/meta.json" },
+      "dcat:mediaType": { "@id": "https://www.iana.org/assignments/media-types/application/json" },
+      "dct:conformsTo": { "@id": "https://github.com/dlukas99/nisaradar/blob/main/docs/openapi.yaml" }
+    },
+    {
+      "@type": "dcat:Distribution",
+      "dct:title": "Semafor po JLS-u (JSON, jedna datoteka po JLS-u)",
+      "dcat:accessURL": { "@id": "https://dlukas99.github.io/nisaradar/data/deficit/" },
+      "dcat:mediaType": { "@id": "https://www.iana.org/assignments/media-types/application/json" },
+      "dct:conformsTo": { "@id": "https://github.com/dlukas99/nisaradar/blob/main/docs/openapi.yaml" }
+    },
+    {
+      "@type": "dcat:Distribution",
+      "dct:title": "Semafor po odjeljku NKD 2025 (JSON, jedna datoteka po odjeljku)",
+      "dcat:accessURL": { "@id": "https://dlukas99.github.io/nisaradar/data/odjeljak/" },
+      "dcat:mediaType": { "@id": "https://www.iana.org/assignments/media-types/application/json" }
+    },
+    {
+      "@type": "dcat:Distribution",
+      "dct:title": "Granice JLS-a (GeoJSON, izvedeno iz DGU INSPIRE)",
+      "dcat:downloadURL": { "@id": "https://dlukas99.github.io/nisaradar/data/jls.geojson" },
+      "dcat:mediaType": { "@id": "https://www.iana.org/assignments/media-types/application/geo+json" }
+    }
+  ]
+}

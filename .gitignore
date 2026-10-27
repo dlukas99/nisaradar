@@ -21,3 +21,4 @@ node_modules/
 # Generira pipeline/export.py pri deployu (iz data/snapshot)
 web/public/data/
 web/dist/
+*.tsbuildinfo

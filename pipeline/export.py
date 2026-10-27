@@ -49,7 +49,9 @@ IZVORI = [
      "licenca": "Otvorena dozvola RH", "koristimo": "broj stanovnika i dobne skupine (0–14, 15–64, 65+) po JLS-u"},
     {"naziv": "Indeks razvijenosti JLS (razdoblje 2020.–2022., Odluka NN 3/2024)",
      "izdavac": "Ministarstvo regionalnoga razvoja i fondova Europske unije",
-     "url": "https://razvoj.gov.hr/o-ministarstvu/regionalni-razvoj/indeks-razvijenosti/112", "ckan": None,
+     "url": ("https://razvoj.gov.hr/UserDocsImages/O%20ministarstvu/Regionalni%20razvoj/indeks%20razvijenosti/"
+             "Vrijednosti%20indeksa%20razvijenosti%20i%20pokazatelja%20za%20izrac%CC%8Cun%20indeksa%20razvijenosti.pdf"),
+     "ckan": None,
      "licenca": "javni dokument tijela javne vlasti", "koristimo": "vrijednost indeksa i razvojna skupina po JLS-u"},
     {"naziv": "Nacionalna klasifikacija djelatnosti 2025. (s tablicom veza NKD 2007. – NKD 2025.)",
      "izdavac": "Državni zavod za statistiku",

@@ -1,0 +1,96 @@
+# Metodologija
+
+Odluke su numerirane (D1–D14) i vode se u `CLAUDE.md`. Ovdje je sažetak za čitatelja.
+
+## 1. Obuhvat (D2, D13)
+
+- Aktivni subjekti Sudskog registra (`only_active`) sa sjedištem u RH. Domaće sjedište prepoznajemo po postojanju
+  `sifra_opcine` (polje `drzava_id` nije pouzdano).
+- Tržišni pravni oblici (filtar po `vrsta_pravnog_oblika_id`): d.o.o. (5), j.d.o.o. (81), zadruga (9), d.d. (4),
+  j.t.d. (1), k.d. (2). Ustanove, udruge, podružnice i strani subjekti su isključeni.
+- Isključeni su subjekti u stečaju (postupak 2) ili likvidaciji (3). Predstečajni postupci ostaju jer subjekt posluje.
+- Ishod (snapshot 1349): **174.304** subjekta. Lokacija subjekta je JLS njegova sjedišta.
+
+## 2. Djelatnost (D1, D11, D12, D14)
+
+- Jedinica analize je **JLS × odjeljak NKD 2025.** (2 znamenke). Razred (4 znamenke) prikazuje se samo informativno.
+- Redoslijed izvora:
+  1. pretežita djelatnost u NKD 2025;
+  2. pretežita djelatnost u NKD 2007, mapirana na 2025;
+  3. `subjekti.glavna_djelatnost` (NKD 2007), mapirana na 2025.
+- Mapiranje 2007 → 2025 radi se po službenoj DZS tablici veza. Kad razred 2007 vodi u više odjeljaka 2025 (50 razreda),
+  uzima se odjeljak koji je najčešći među subjektima s obje šifre.
+- Subjekti bez ikakve šifre (24,0 %) isključuju se iz modela, ali se broje. Udio bez šifre po JLS-u prikazuje se u UI-ju.
+  JLS-ovi s udjelom većim od prosjek + 2 SD (37,7 %) dobivaju oznaku "niža pouzdanost" (19 JLS-ova, nijedan u OBŽ-u).
+- **Slaganje izvora (D14):** kod subjekata koji imaju i pretežitu (2025) i glavnu djelatnost, odjeljak se nakon mapiranja
+  poklapa u 73,3 % slučajeva. Razlika nije artefakt mapiranja: i bez mapiranja (oba izvora u NKD 2007) poklapanje je samo 26 %.
+  Izvori dakle mjere različite stvari. Zato:
+  - glavni model koristi oba izvora (pokrivenost 76 %);
+  - model se ponavlja **samo na pretežitoj djelatnosti** i za svaku ćeliju prikazuje je li nalaz potvrđen;
+  - semafor je isti u 95,7 % ćelija. "Nedostaje" se na užem izvoru potvrđuje u 38 %, a "zasićeno" u 64 % slučajeva.
+
+## 3. Model (D4)
+
+Za svaki odjeljak *d* s barem 50 subjekata u RH (71 od 83 odjeljka) zasebno:
+
+```
+O_jd ~ NegBin(μ_jd, α_d)          (NB2: Var = μ + α μ²)
+log μ_jd = log(stanovnika_j) + β_d0 + β_d · x_j
+```
+
+Značajke `x_j` (standardizirane):
+
+- udio stanovnika 65+ i udio 0–14 (Popis 2021.);
+- indeks razvijenosti (2024.);
+- grad (1) ili općina (0);
+- log-stopa subjekata istog odjeljka na 10.000 stanovnika **u ostatku županije** (leave-one-out, bez samog JLS-a;
+  za Grad Zagreb nacionalna stopa bez Zagreba). Hvata regionalne razlike (npr. turizam na obali) bez curenja
+  informacije o samom JLS-u.
+
+Procjena: `statsmodels` NegativeBinomial (MLE, BFGS). Ako procjena ne konvergira, koristi se Poissonov GLM (α ≈ 0).
+
+## 4. Semafor (D5)
+
+Za stvarni broj O i prediktivnu razdiobu NegBin(μ, α):
+
+- **Nedostaje:** `P(Y ≤ O) < 0,10`
+- **Zasićeno:** `P(Y ≥ O) < 0,10`
+- **U ravnoteži:** inače
+- Odjeljci s manje od 50 subjekata u RH: **premalo podataka** (bez semafora)
+
+UI uvijek prikazuje "stvarno O, očekivano μ (80 % raspon a–b)", gdje su a i b 10. i 90. percentil, uz tekst i ikonu.
+Boja nikad ne nosi značenje sama.
+
+Za diskretne brojeve je pravilo konzervativno. Kad je očekivanje malo (npr. μ = 1), ni 0 subjekata nije neobično, pa
+"nedostaje" ne može izaći. To je namjerno: deficit tvrdimo samo kad je statistički uvjerljiv. Ishod je 0,7 % ćelija
+"nedostaje", 4,9 % "zasićeno" i 94,4 % "u ravnoteži".
+
+## 5. Evaluacija (D6)
+
+- GroupKFold po županijama (21 grupa): model nikad ne vidi JLS-ove županije koju predviđa.
+- Usporedba s baselineom (nacionalna stopa po stanovniku × stanovnici) i izazivačem (jedan HistGradientBoosting
+  za sve odjeljke, Poissonov gubitak).
+- Metrike: Poissonova devijanca, MAE, pokrivenost 80 % intervala (randomizirani PIT) i PIT histogram.
+- Rezultati: [evaluacija.md](evaluacija.md). Devijanca je 1,52 prema 2,84 za baseline, a pokrivenost 75,4 %.
+
+## 6. Prijedlog djelatnosti iz teksta (D7)
+
+Fuse.js fuzzy pretraga nad službenim nazivima 651 razreda NKD 2025, nazivima odjeljaka i ručnim sinonimima
+(`data/reference/sinonimi.csv`, oko 100 razreda najčešćih ideja za samozapošljavanje).
+
+- Tekst se normalizira (bez dijakritika), uklanjaju se riječi bez značenja ("želim otvoriti mali ...").
+- Svaka riječ traži se zasebno, a bodovi se zbrajaju.
+- Prikazuju se samo prijedlozi blizu najboljeg.
+
+## 7. Tržišni odlomak (D8)
+
+Deterministički predložak (`web/src/lib/odlomak.ts`), bez LLM-a. Sadrži broj subjekata, stanovnike, očekivanje
+i raspon, zaključak, stope na 10.000 stanovnika (JLS, županija, RH), broj u razredu, ograde (obrti, pouzdanost) i izvore.
+
+## 8. Ograničenja
+
+- Obrti nisu u Sudskom registru (D3). Ako je udio obrta po regijama sličan, relativni deficit ostaje valjan.
+  Za odjeljke u kojima prevladavaju obrti (01, 43, 56, 95, 96) prikazuje se oznaka "niža pouzdanost".
+- Interval zanemaruje nesigurnost procjene koeficijenata.
+- Model mjeri neobičnost broja subjekata s obzirom na usporedive JLS-ove, a ne izravnu potražnju ni veličinu tržišta.
+- Sjedište nije nužno mjesto poslovanja (npr. tvrtke sa sjedištem u Zagrebu i poslovnicama drugdje).

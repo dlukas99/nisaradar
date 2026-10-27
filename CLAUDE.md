@@ -119,7 +119,21 @@ Opis skupa na Portalu: https://data.gov.hr/ckan/dataset/sudski-registar
 
 **Obrti NISU u Sudskom registru**, vidi odluku D3.
 
-### 3.2 Ostali izvori (svi NEPROVJERENI dok se ne otvore; zadatak dana 1–2)
+### 3.2 Ostali izvori — PROVJERENO 27.10. (detalji i poveznice u `DATA_SOURCES.md`)
+
+- **Popis 2021.:** DZS XLSX "Stanovništvo po gradovima/općinama", tablica 6 (kontingenti). Nema šifre JLS-a, samo naziv i županiju.
+  Spojeno po (županija, naziv) na Sudreg za svih 556 JLS-ova uz 2 ručna aliasa (Murter-Kornati, Sveta Nedelja/Nedjelja).
+  Zbroj stanovnika je 3.871.833, što je točno RH. Grad Zagreb je u tablici redak županije.
+- **Indeks razvijenosti:** MRRFEU PDF "Vrijednosti indeksa razvijenosti i pokazatelja..." (razdoblje 2020.–2022.). U URL-u je "č" zapisan
+  dekomponirano (`c%CC%8C`), s običnim "č" je 404. Ima rang, naziv, županiju, skupinu (1–8) i indeks za svih 556 JLS-ova.
+- **NKD tablica veza 2007 → 2025:** službena, u DZS publikaciji NKD 2025 (peti dio, str. 431+). Parsirano 1.010 parova, svih 615 razreda NKD 2007.
+  Razred 19.20 se ne izvlači iz PDF-a, pa je dodan ručno. U KLASUS-u nema stalne poveznice.
+- **Granice JLS-a:** DGU INSPIRE Upravne jedinice, ATOM `https://geoportal.dgu.hr/services/atom/au/xml` → ZIP s GML-om (600 MB, EPSG:3035, osi y,x),
+  Otvorena dozvola. **`au:nationalCode` (3rdOrder) = Sudreg `sifra_opcine` za svih 556**, što je službena potvrda ključa.
+- **CKAN API:** ne šalje CORS zaglavlja, ali podržava **JSONP** (`&callback=`). Web tako čita datume uživo, a export ih sprema i noćno kao rezervu.
+- Otvoreni agregat obrta po JLS × NKD: nije pronađen (D3 ostaje).
+
+### 3.2a Izvorni popis zadataka (arhiva)
 
 - **DZS Popis stanovništva 2021.** po JLS-u: ukupno stanovništvo i dobne skupine (0–14, 15–64, 65+).
   Traži na data.gov.hr (CKAN API) i podaci.dzs.hr.
@@ -206,6 +220,13 @@ Ako se šifre ne slažu, spajaj po normaliziranom nazivu JLS-a i županiji te ru
   - Učinak (tržišni oblici, snapshot 1349): isključeno **4.801** (2.511 stečaj i 2.290 likvidacija), zadržano **174.307** od 179.108.
     Skup vrijednosti u `subjekti.postupak` (1–7) odgovara šifrarniku.
 
+- **D14. Dva izvora djelatnosti (27.10., Domagoj):** nakon službenog mapiranja slaganje je **73,3 %** (n = 4.351), ispod praga 85 % iz D12.
+  Uzrok nije mapiranje: i kad su oba izvora u NKD 2007 (bez mapiranja, n = 376), odjeljak se poklapa samo u 26 %. Izvori mjere različite stvari.
+  - **Odluka:** koriste se oba izvora (redoslijed iz D12), uz **test osjetljivosti**: isti model samo na pretežitoj djelatnosti.
+  - UI za svaku ćeliju prikazuje je li nalaz potvrđen na užem izvoru (`status_uzi`).
+  - Rezultat: semafor je isti u 95,7 % ćelija; "nedostaje" je potvrđen u 38 %, "zasićeno" u 64 % (detalji u `docs/evaluacija.md`).
+  - `build.py` ispod praga samo upozorava i ne staje.
+
 ## 5. Arhitektura (MVP bez poslužitelja)
 
 ```
@@ -241,17 +262,18 @@ docs/      arhitektura.md  metodologija.md  evaluacija.md  openapi.yaml  sudreg_
 ## 6. Opseg MVP-a do 9.11.
 
 **MORA:**
-- [ ] ingest iz Sudreg-a (API, isti snapshot)
-- [ ] spajanje s DZS-om i indeksom razvijenosti
-- [ ] model i evaluacija
-- [ ] semafor s intervalom
-- [ ] početni ekran: opis ideje → NKD prijedlog + izbor općine
-- [ ] ekran rezultata s objašnjenjem "kako smo izračunali"
-- [ ] karta županije po deficitu za odabrani odjeljak
-- [ ] tržišni odlomak (kopiraj/ispis)
-- [ ] stranica "Izvori i ažurnost" (uživo iz CKAN-a)
-- [ ] noćni GitHub Actions i deploy na Pages
-- [ ] dokumentacija i video
+- [x] ingest iz Sudreg-a (API, isti snapshot, checkpoint) — `fetch_sudreg.py`
+- [x] spajanje s DZS-om i indeksom razvijenosti — `reference.py`
+- [x] model i evaluacija — `model.py`, `docs/evaluacija.md`
+- [x] semafor s intervalom
+- [x] početni ekran: opis ideje → NKD prijedlog + izbor općine
+- [x] ekran rezultata s objašnjenjem "kako smo izračunali"
+- [x] karta županije po deficitu za odabrani odjeljak
+- [x] tržišni odlomak (kopiraj/ispis)
+- [x] stranica "Izvori i ažurnost" (uživo iz CKAN-a, JSONP)
+- [x] noćni GitHub Actions i deploy na Pages — workflowi napisani; **čeka secrets i uključivanje Pagesa (Domagoj)**
+- [x] dokumentacija (README, DATA_SOURCES, arhitektura, metodologija, openapi, DCAT-AP, scenarij videa)
+- [ ] video (snimanje 8.11.), test s korisnicima (5.11.), evaluacija NKD prijedloga na ~100 opisa (D7)
 
 **DALJNJI RAZVOJ** (spomenuti u videu, ne raditi):
 - obrti iz službenog agregata
@@ -310,6 +332,17 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
   - `pipeline/analiza_nkd.py` ponovio mjerenje: 174.304 tržišna subjekta u analizi (D2 + D13), 76,0 % ima šifru (OBŽ 78,8 %), bez šifre 41.877 (24,0 %).
     Udio bez šifre po JLS-u: prosjek 21,4 %, SD 8,2 %, prag 37,7 %. Oznaku "niža pouzdanost" dobiva 19 od 556 JLS-ova (nijedan u OBŽ-u), većinom vrlo male općine
     (15 JLS-ova ima manje od 10 subjekata). Beli Manastir ima 28,6 % (42/147), ispod praga.
+- 27.10. (kasno navečer, cijeli MVP): **GO/NO-GO = GO.** Šifre JLS-a se spajaju sa svim izvorima (vidi 3.2).
+  - D12 kontrola je dala 73,3 %, pa je donesen D14 (oba izvora + test osjetljivosti).
+  - Matrica: 556 JLS × 83 odjeljka, 132.425 subjekata s odjeljkom. Modelirano je 71 odjeljak (barem 50 subjekata u RH).
+  - Evaluacija (GroupKFold po županijama): devijanca GLM 1,52, baseline 2,84, GBM 1,63; MAE 1,58 prema 2,25. GLM je bolji od baselinea u 63/71 odjeljaka.
+    GBM izazivač (jedan model za sve odjeljke) ne pobjeđuje, pa po D4 ostaje GLM.
+  - Pokrivenost 80 % intervala: randomizirani PIT 0,754 (u cilju); doslovna cjelobrojna pokrivenost 0,936 (napuhana diskretnošću).
+  - Semafor: 0,7 % nedostaje, 4,9 % zasićeno, 94,4 % ravnoteža. Pravilo D5 je za male brojeve konzervativno: u 87 % ćelija ni O = 0 nije neobično.
+    **Zadržan je D5** (mid-p bi dao 1,7 % "nedostaje"; može se razmotriti, vidi 10).
+  - `fetch_sudreg.py` s checkpointom testiran na punom dohvatu (snapshot 1349, bez duplikata).
+  - Web (Vite/React/TS/MapLibre/Fuse.js) radi lokalno. Paleta semafora je validirana za CVD (plava/narančasto-crvena + siva sredina).
+  - Workflowi: `nightly.yml`, `pages.yml`, `sudreg_test.yml`.
 
 ## 10. Otvorena pitanja / NEPROVJERENO
 
@@ -317,23 +350,34 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
 - [x] Pravni oblici: popis i šifre za filtar D2 (zatvoreno 27.10., vidi D2)
 - [x] **24 % tržišnih subjekata nema NKD šifru** (RH 43.371, OBŽ 1.524): odlučeno u D11 (isključeni iz modela, broje se, oznaka po JLS-u). Najveći udio bez NKD-a ima godina osnivanja 2019. (43 %) i 2020. (17,5 %); 2.804 ih nema datum osnivanja.
 - [x] **Dvije verzije NKD-a:** odlučeno u D12 (NKD 2025, odjeljak, mapiranje 2007 → 2025). Otvoreno ispod: korespondencija i ponovno mjerenje slaganja.
-- [ ] Pronaći **službenu DZS tablicu korespondencije NKD 2007 ↔ NKD 2025**. Ako ne postoji otvoreno, javiti Domagoju (D12).
-- [ ] Nakon mapiranja ponovno izmjeriti slaganje odjeljaka na istoj verziji (prag 85 %, ispod toga stati; D12). Dosadašnjih 68 % uspoređivalo je različite verzije.
-- [ ] Potvrditi pretpostavku iz D11 (neponderirani prosjek i SD po JLS-ovima) i popis odjeljaka "niža pouzdanost" u NKD 2025 (D3) nakon mapiranja.
+- [x] Službena DZS tablica veza NKD 2007 ↔ 2025: pronađena u publikaciji NKD 2025 (vidi 3.2).
+- [x] Slaganje nakon mapiranja: 73,3 %, ispod praga. Odlučeno u D14.
+- [ ] Potvrditi pretpostavku iz D11 (neponderirani prosjek i SD po JLS-ovima) i popis odjeljaka "niža pouzdanost" u NKD 2025 (D3).
+- [ ] Razmotriti mid-p semafor (P(Y<O) + ½P(Y=O) < 0,10): manje konzervativan za male brojeve (0,7 % → 1,7 % "nedostaje"). Promjena D5 traži dogovor.
+- [ ] D7 evaluacija: ručno označiti ~100 opisa ideja i izmjeriti top-1/top-3 točnost NKD prijedloga.
+- [ ] Je li GitHub runner propušten na Sudreg API? Pokrenuti workflow "Test pristupa Sudreg API-ju" nakon dodavanja secrets.
 - [ ] Šifre u `pretezite_djelatnosti` s NKD 2002 (2 retka) nemaju pravilo mapiranja u D12.
       Ako oba postoje, odjeljak se poklapa u samo 68 % slučajeva. Ne znamo je li to promjena koda ili stvarna promjena djelatnosti.
 - [x] Subjekti u postupku: odlučeno u D13 (isključuju se stečaj i likvidacija, 4.801 tržišni subjekt).
 - [ ] Značenje `drzava_id` = 55 kod domaćih sjedišta (vjerojatno Hrvatska, provjeriti u `/drzave`).
-- [ ] **Spajanje šifre općine iz Sudrega (DGU šifra, npr. Osijek 3123, Virovitica 4910) s DZS-om i indeksom razvijenosti.** To je preostali uvjet GO/NO-GO.
-- [ ] Robusnost dohvata: veza se prekida pri većim stranicama. `fetch_sudreg.py` treba spremati stranice postupno (checkpoint) i moći nastaviti nakon prekida veze, uz isti `snapshot_id`.
-- [ ] Izvor i format Popisa 2021. po JLS-u s dobnim skupinama
-- [ ] Indeks razvijenosti (NN 3/2024) u strojno čitljivom obliku
-- [ ] Otvorene granice JLS-a (GeoJSON) i licenca
+- [x] Spajanje šifre općine s DZS-om i indeksom razvijenosti: svih 556 (vidi 3.2). GO/NO-GO zatvoren.
+- [x] Robusnost dohvata: `fetch_sudreg.py` s checkpointom po stranici.
+- [x] Popis 2021. po JLS-u s dobnim skupinama (DZS XLSX, tablica 6)
+- [x] Indeks razvijenosti (MRRFEU PDF, parsira se `pdfplumberom`)
+- [x] Granice JLS-a: DGU INSPIRE, Otvorena dozvola
 - [ ] Postoji li otvoreni agregat obrta po JLS-u / NKD-u
 - [ ] Upit na open.data@mpudt.hr: kako se računa 60 bodova kad je ukupno "zbroj bodova članova Povjerenstva"; tko je voditelj tima
 - [ ] Administracija: mentor potvrđen? drugi student? svi prijavljeni do 30.10.?
 
-## 11. Sljedeći korak (ažurirano 27.10. navečer)
+## 11. Sljedeći korak (ažurirano 27.10. kasno navečer: MVP je napravljen)
+
+1. **Domagoj:** push na GitHub; dodati secrets `SUDREG_CLIENT_ID` i `SUDREG_CLIENT_SECRET`; Settings → Pages → Source: "GitHub Actions";
+   ručno pokrenuti "Test pristupa Sudreg API-ju", zatim "Noćno osvježavanje podataka".
+2. Ako GitHub runner nema pristup API-ju: noćni workflow ide na plan B (zadnji snapshot iz gita). Tada se podaci osvježavaju lokalno
+   (`pipeline/run.py`) i commitaju ručno, a to treba javiti organizatoru.
+3. Test s 3–5 korisnika (5.11.), D7 evaluacija prijedloga, snimke zaslona, video (8.11.) po `docs/video_scenarij.md`.
+
+### Arhiva: sljedeći korak od 27.10. navečer
 
 1. **DZS Popis 2021. + indeks razvijenosti + provjera šifri JLS-a = zadnji uvjet GO/NO-GO.**
    Sudregov `sifra_opcine` (DGU šifra; 556 JLS-ova, OBŽ 42) usporediti sa šiframa u DZS-u i u NN 3/2024.

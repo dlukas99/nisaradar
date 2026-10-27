@@ -1,0 +1,33 @@
+# Rani test (CLAUDE.md, odjeljak 11): propušta li Sudreg API IP adrese GitHub runnera?
+# Dohvaća samo token i /snapshots, bez podataka. Token se nikad ne ispisuje.
+name: Test pristupa Sudreg API-ju
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests python-dotenv
+      - name: Token i /snapshots
+        env:
+          SUDREG_CLIENT_ID: ${{ secrets.SUDREG_CLIENT_ID }}
+          SUDREG_CLIENT_SECRET: ${{ secrets.SUDREG_CLIENT_SECRET }}
+        working-directory: pipeline
+        run: |
+          python -X utf8 - <<'PY'
+          from sudreg_client import SudregClient
+          c = SudregClient()
+          print("Token vrijedi još", c.token_ok(), "s")
+          snaps, h = c.get("snapshots")
+          najnoviji = min((s for s in snaps if s["staleness"] >= 1), key=lambda s: s["staleness"])
+          print("Snapshotova:", len(snaps), "| najnoviji:", najnoviji["id"], najnoviji["timestamp"])
+          PY

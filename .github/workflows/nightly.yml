@@ -1,0 +1,52 @@
+# Noćno osvježavanje: dohvat iz Sudskog registra (isti snapshot), spajanje, model, izvoz.
+# Agregati (data/snapshot) se commitaju u repozitorij, a zatim se web ponovno objavljuje.
+# Ako API ne radi, run.py izvozi zadnji uspješni snapshot (plan B) i ništa se ne kvari.
+name: Noćno osvježavanje podataka
+
+on:
+  schedule:
+    - cron: "0 1 * * *"   # 01:00 UTC = 02:00 po zimskom vremenu
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+      - run: pip install -r pipeline/requirements.txt
+      - name: Pipeline (dohvat -> build -> model -> export)
+        env:
+          SUDREG_CLIENT_ID: ${{ secrets.SUDREG_CLIENT_ID }}
+          SUDREG_CLIENT_SECRET: ${{ secrets.SUDREG_CLIENT_SECRET }}
+        run: python -X utf8 pipeline/run.py
+      - name: Commit osvježenih agregata
+        run: |
+          git config user.name "nisaradar-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/snapshot data/reference/nkd2025_odjeljci.csv data/reference/nkd2025_razredi.csv docs/evaluacija.md
+          if git diff --cached --quiet; then
+            echo "Nema promjena u podacima."
+          else
+            SID=$(python -c "import json;print(json.load(open('data/snapshot/sudreg_meta.json'))['snapshot_id'])")
+            git commit -m "Podaci: Sudreg snapshot $SID (noćno osvježavanje)"
+            git push
+          fi
+
+  deploy:
+    needs: pipeline
+    uses: ./.github/workflows/pages.yml

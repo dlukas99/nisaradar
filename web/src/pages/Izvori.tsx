@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Osnovno } from "../lib/data";
-import { datum, datumVrijeme, fmt, fmt1, postotak } from "../lib/format";
+import { datum, datumVrijeme, fmt, postotak } from "../lib/format";
 
 // Datum zadnje izmjene skupa dohvaćamo uživo iz CKAN API-ja data.gov.hr. CKAN ne šalje CORS zaglavlja, pa običan
 // fetch iz preglednika ne prolazi; CKAN zato podržava JSONP (parametar `callback`). Ako ni to ne uspije,
@@ -125,7 +125,7 @@ export function Izvori({ d }: { d: Osnovno }) {
           <table>
             <thead><tr><th>Mjera</th><th className="r">Jednostavno pravilo¹</th><th className="r">NišaRadar model</th></tr></thead>
             <tbody>
-              <tr><td>Poissonova devijanca (niže je bolje)</td><td className="r">{fmt1(e.devijanca_baseline)}</td><td className="r"><strong>{e.devijanca_glm.toFixed(2).replace(".", ",")}</strong></td></tr>
+              <tr><td>Poissonova devijanca (niže je bolje)</td><td className="r">{e.devijanca_baseline.toFixed(2).replace(".", ",")}</td><td className="r"><strong>{e.devijanca_glm.toFixed(2).replace(".", ",")}</strong></td></tr>
               <tr><td>Prosječna pogreška (tvrtki po JLS-u i djelatnosti)</td><td className="r">{e.mae_baseline.toFixed(2).replace(".", ",")}</td><td className="r"><strong>{e.mae_glm.toFixed(2).replace(".", ",")}</strong></td></tr>
               <tr><td>Pokrivenost 80 % raspona (cilj 75–85 %)</td><td className="r">–</td><td className="r"><strong>{postotak(e.pokrivenost_80_pit)}</strong></td></tr>
             </tbody>

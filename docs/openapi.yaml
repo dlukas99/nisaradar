@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: NišaRadar – indeks deficita djelatnosti po JLS-u
+  version: 1.0.0
+  description: |
+    Statički "API": JSON datoteke koje noćno generira `pipeline/export.py` i poslužuje GitHub Pages.
+    Svi podaci su agregati po JLS × NKD 2025 odjeljak (nema pojedinačnih subjekata).
+    Ključ JLS-a (`sifra`) je DGU šifra jedinice lokalne samouprave, ista kao `sifra_opcine` u Sudskom registru.
+
+    Endpoint `/v1/deficit` je predloženi REST oblik za integraciju (npr. mjere.hzz.hr) i još nije implementiran.
+  license:
+    name: Otvorena dozvola RH (podaci) / EUPL-1.2 (kod)
+servers:
+  - url: https://dlukas99.github.io/nisaradar/data
+    description: statičke datoteke (GitHub Pages)
+paths:
+  /meta.json:
+    get:
+      summary: Snapshot, datumi, obuhvat, sažetak evaluacije i izvori
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Meta" }
+  /jls.json:
+    get:
+      summary: Svi gradovi i općine (556)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Jls" } }
+  /odjeljci.json:
+    get:
+      summary: Odjeljci NKD 2025 s oznakama
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Odjeljak" } }
+  /razredi.json:
+    get:
+      summary: Razredi NKD 2025 sa sinonimima (za pretragu)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Razred" } }
+  /deficit/{sifra}.json:
+    get:
+      summary: Svi odjeljci za jedan JLS
+      parameters:
+        - { name: sifra, in: path, required: true, schema: { type: integer }, example: 132 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sifra: { type: integer }
+                  odjeljci: { type: array, items: { $ref: "#/components/schemas/Celija" } }
+                  razredi:
+                    type: object
+                    description: broj subjekata po razredu NKD 2025 (samo iz pretežite djelatnosti)
+                    additionalProperties: { type: integer }
+  /odjeljak/{odjeljak}.json:
+    get:
+      summary: Svi JLS-ovi za jedan odjeljak (karta i pregled županije)
+      parameters:
+        - { name: odjeljak, in: path, required: true, schema: { type: string, pattern: "^[0-9]{2}$" }, example: "96" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  odjeljak: { type: string }
+                  jls:
+                    type: array
+                    items:
+                      allOf:
+                        - { $ref: "#/components/schemas/Celija" }
+                        - type: object
+                          properties: { sifra: { type: integer } }
+  /jls.geojson:
+    get:
+      summary: Granice JLS-a (GeoJSON RFC 7946, WGS84), svojstva sifra_opcine i naziv
+      responses:
+        "200":
+          description: OK
+          content:
+            application/geo+json: {}
+  /v1/deficit:
+    get:
+      summary: "(PREDLOŽENO) Semafor za JLS i odjeljak"
+      description: Budući REST endpoint za integraciju; vraća isto što i ćelija iz /deficit/{sifra}.json.
+      parameters:
+        - { name: jls, in: query, required: true, schema: { type: integer } }
+        - { name: nkd, in: query, required: true, schema: { type: string }, description: "odjeljak (2 znamenke) ili razred (npr. 96.21)" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Celija" }
+components:
+  schemas:
+    Status:
+      type: string
+      enum: [nedostaje, ravnoteza, zasiceno, premalo]
+    Celija:
+      type: object
+      properties:
+        odjeljak: { type: string, example: "96" }
+        broj: { type: integer, description: stvarni broj aktivnih tržišnih subjekata }
+        ocekivano: { type: number, nullable: true, description: očekivani broj μ (NegBin GLM) }
+        interval:
+          type: array
+          nullable: true
+          items: { type: integer }
+          minItems: 2
+          maxItems: 2
+          description: 10. i 90. percentil prediktivne razdiobe
+        p_manje: { type: number, nullable: true, description: "P(Y ≤ stvarno)" }
+        p_vise: { type: number, nullable: true, description: "P(Y ≥ stvarno)" }
+        status: { $ref: "#/components/schemas/Status" }
+        status_uzi:
+          allOf: [{ $ref: "#/components/schemas/Status" }]
+          nullable: true
+          description: status iz modela samo na pretežitoj djelatnosti (test osjetljivosti D14)
+    Jls:
+      type: object
+      properties:
+        sifra: { type: integer }
+        naziv: { type: string }
+        zupanija: { type: string }
+        sifra_zupanije: { type: integer }
+        grad: { type: boolean }
+        stanovnika: { type: integer }
+        udio_0_14: { type: number }
+        udio_65: { type: number }
+        indeks_razvijenosti: { type: number }
+        skupina_razvijenosti: { type: integer, minimum: 1, maximum: 8 }
+        subjekata: { type: integer, description: tržišni subjekti u obuhvatu }
+        udio_bez_sifre: { type: number }
+        niza_pouzdanost_nkd: { type: boolean }
+    Odjeljak:
+      type: object
+      properties:
+        odjeljak: { type: string }
+        naziv: { type: string }
+        podrucje: { type: string }
+        podrucje_naziv: { type: string }
+        obrti: { type: boolean, description: "odjeljak u kojem prevladavaju obrti (niža pouzdanost)" }
+        modeliran: { type: boolean }
+        broj_rh: { type: integer }
+        alpha: { type: number, nullable: true, description: parametar disperzije NegBin }
+        devijanca_glm: { type: number, nullable: true }
+        devijanca_baseline: { type: number, nullable: true }
+    Razred:
+      type: object
+      properties:
+        razred: { type: string, example: "96.21" }
+        naziv: { type: string }
+        odjeljak: { type: string }
+        sinonimi: { type: string }
+        broj_rh: { type: integer }
+    Meta:
+      type: object
+      properties:
+        snapshot_id: { type: integer }
+        snapshot_vrijeme: { type: string, format: date-time }
+        dohvaceno: { type: string, format: date-time }
+        generirano: { type: string, format: date-time }
+        obuhvat: { type: object }
+        evaluacija: { type: object }
+        osjetljivost: { type: object }
+        izvori: { type: array, items: { type: object } }
