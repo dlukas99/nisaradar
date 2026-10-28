@@ -22,3 +22,6 @@ node_modules/
 web/public/data/
 web/dist/
 *.tsbuildinfo
+
+# radne snimke zaslona (prave su u docs/snimke/)
+web/*.png
