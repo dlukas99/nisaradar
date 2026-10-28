@@ -271,7 +271,7 @@ docs/      arhitektura.md  metodologija.md  evaluacija.md  openapi.yaml  sudreg_
 - [x] karta županije po deficitu za odabrani odjeljak
 - [x] tržišni odlomak (kopiraj/ispis)
 - [x] stranica "Izvori i ažurnost" (uživo iz CKAN-a, JSONP)
-- [x] noćni GitHub Actions i deploy na Pages — workflowi napisani; **čeka secrets i uključivanje Pagesa (Domagoj)**
+- [x] noćni GitHub Actions i deploy na Pages — radi od 28.10.: https://dlukas99.github.io/nisaradar/
 - [x] dokumentacija (README, DATA_SOURCES, arhitektura, metodologija, openapi, DCAT-AP, scenarij videa)
 - [x] evaluacija NKD prijedloga na 104 opisa (D7) — `docs/evaluacija_pretrage.md`
 - [ ] video (snimanje 8.11.), test s korisnicima (5.11.)
@@ -358,7 +358,8 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
 - [x] D7 evaluacija (28.10.): 104 opisa u `data/reference/nkd_test_opisi.csv`. v1 izvan uzorka: top-1 87,5 %, top-3 89,4 %.
       Nakon općih izmjena (sinonimi kao polje + ignoreFieldNorm, lagani stemmer, manja težina generičkih riječi): top-1 90,4 %, top-3 97,1 % (djelomično u uzorku).
       Nepristrana procjena traži nove opise od korisnika (test 5.11.). Skripta: `npm run eval:pretraga` u `web/`.
-- [ ] Je li GitHub runner propušten na Sudreg API? Pokrenuti workflow "Test pristupa Sudreg API-ju" nakon dodavanja secrets.
+- [x] GitHub runner ima pristup Sudreg API-ju (28.10.): "Test pristupa" prošao, noćni workflow dohvatio sve tablice (pipeline 5,5 min) i objavio stranicu.
+      Upozorenja "Node.js 20 is deprecated" u Actionsima su bezopasna (akcije se izvode na Node 24); verzije akcija podići kad izađu nove glavne verzije.
 - [ ] Šifre u `pretezite_djelatnosti` s NKD 2002 (2 retka) nemaju pravilo mapiranja u D12.
       Ako oba postoje, odjeljak se poklapa u samo 68 % slučajeva. Ne znamo je li to promjena koda ili stvarna promjena djelatnosti.
 - [x] Subjekti u postupku: odlučeno u D13 (isključuju se stečaj i likvidacija, 4.801 tržišni subjekt).
@@ -372,13 +373,17 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
 - [ ] Upit na open.data@mpudt.hr: kako se računa 60 bodova kad je ukupno "zbroj bodova članova Povjerenstva"; tko je voditelj tima
 - [ ] Administracija: mentor potvrđen? drugi student? svi prijavljeni do 30.10.?
 
-## 11. Sljedeći korak (ažurirano 27.10. kasno navečer: MVP je napravljen)
+## 11. Sljedeći korak (ažurirano 28.10.: prototip je javno objavljen)
 
-1. **Domagoj:** push na GitHub; dodati secrets `SUDREG_CLIENT_ID` i `SUDREG_CLIENT_SECRET`; Settings → Pages → Source: "GitHub Actions";
-   ručno pokrenuti "Test pristupa Sudreg API-ju", zatim "Noćno osvježavanje podataka".
-2. Ako GitHub runner nema pristup API-ju: noćni workflow ide na plan B (zadnji snapshot iz gita). Tada se podaci osvježavaju lokalno
-   (`pipeline/run.py`) i commitaju ručno, a to treba javiti organizatoru.
-3. Test s 3–5 korisnika (5.11.), D7 evaluacija prijedloga, snimke zaslona, video (8.11.) po `docs/video_scenarij.md`.
+1. Prototip radi na https://dlukas99.github.io/nisaradar/ i osvježava se svake noći (01:00 UTC). Prije lokalnog rada uvijek `git pull`,
+   jer noćni workflow commita podatke.
+2. Prijave tima do 30.10. (svaki član posebno, izazov C).
+3. Test s 3–5 korisnika (5.11.): zapisati njihove opise ideja u novi testni skup za nepristranu D7 procjenu.
+4. Video (8.11.) po `docs/video_scenarij.md`; predaja 9.11. do 18:00.
+
+### Arhiva: sljedeći korak od 27.10. kasno navečer
+
+1. **Domagoj:** push na GitHub; secrets; Pages → "GitHub Actions"; pokrenuti test pa noćni workflow. (Napravljeno 28.10.)
 
 ### Arhiva: sljedeći korak od 27.10. navečer
 
