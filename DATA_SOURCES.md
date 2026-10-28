@@ -104,6 +104,7 @@ dozvola RH, uz navođenje izvora iz ove datoteke.
 | Vite | MIT | build weba |
 | TypeScript | Apache-2.0 | tipovi |
 | MapLibre GL JS | BSD-3-Clause | karta |
+| Inter, Bricolage Grotesque (Fontsource, lokalno) | OFL-1.1 | fontovi sučelja |
 
 AI alati: pri razvoju je korišten AI asistent za programiranje Claude Code (Anthropic). Rješenje u radu ne koristi
 zatvorene AI usluge.

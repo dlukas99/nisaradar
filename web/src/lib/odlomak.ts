@@ -80,7 +80,8 @@ export function tekstOdlomka(u: OdlomakUlaz): string {
           `${celija.interval[0]} do ${celija.interval[1]}. Stvarni broj je ${z.polozaj}. ${z.recenica}.`,
       );
     }
-    if (u.razred && u.brojURazredu !== undefined) {
+    // Razred koji čini cijeli odjeljak ne treba posebnu rečenicu (isti broj kao odjeljak).
+    if (u.razred && u.brojURazredu !== undefined && (u.razred.udio ?? 0) < 0.999) {
       dijelovi.push(`U užem razredu ${u.razred.razred} – ${u.razred.naziv} registrirano je ${subjekata(u.brojURazredu)}.`);
     }
   }

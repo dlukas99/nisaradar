@@ -115,7 +115,7 @@ Objavljuju se samo agregati po JLS-u × djelatnosti.
 ## Alati i licence
 
 Kod: [EUPL-1.2](LICENSE). Korišteni open-source alati: Python (requests, python-dotenv, pandas, pyarrow, numpy, scipy,
-statsmodels, scikit-learn, openpyxl, pdfplumber, shapely, pyproj, lxml), web (React, Vite, TypeScript, MapLibre GL JS).
+statsmodels, scikit-learn, openpyxl, pdfplumber, shapely, pyproj, lxml), web (React, Vite, TypeScript, MapLibre GL JS, fontovi Inter i Bricolage Grotesque pod OFL-1.1).
 Licence su navedene u [DATA_SOURCES.md](DATA_SOURCES.md).
 
 Pri razvoju je korišten AI asistent za programiranje (Claude Code, Anthropic). Samo rješenje ne koristi zatvorene AI

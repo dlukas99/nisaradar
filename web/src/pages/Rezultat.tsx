@@ -41,6 +41,8 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
   const uze: UziPogled | undefined = useMemo(() => {
     if (!razred || razred.udio === null || !def || !celija || celija.ocekivano === null || !odjeljak || odjeljak.alpha === null)
       return undefined;
+    // Razred koji čini cijeli odjeljak (npr. 41.00) nema što suziti: prikazujemo odjeljak, uz provjeru na užem izvoru.
+    if (razred.udio >= 0.999) return undefined;
     const broj = def.razredi[razred.razred] ?? 0;
     const ocekivano = celija.ocekivano * razred.udio;
     const o = ocijeni(ocekivano, odjeljak.alpha, broj);
@@ -113,43 +115,48 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
 
   return (
     <>
-      <p className="ne-ispis small">
-        <a href="#/">← Nova provjera</a>
-      </p>
-      <h1>
-        {razred ? razred.naziv : odjeljak.naziv}
-        <span className="muted" style={{ fontWeight: 500 }}> · {jls.naziv}</span>
-      </h1>
-      <p className="muted">
-        {razred ? (
-          <>NKD 2025. razred {razred.razred} (odjeljak {odjeljak.odjeljak} – {odjeljak.naziv})</>
-        ) : (
-          <>NKD 2025. odjeljak {odjeljak.odjeljak} ({odjeljak.podrucje_naziv})</>
-        )}{" "}
-        · {jlsVrsta(jls.grad)} {jls.naziv}, {zupanijaNom(jls.zupanija)}
-      </p>
+      <div className="rez-glava ulaz">
+        <a className="natrag ne-ispis" href="#/">
+          ← Nova provjera
+        </a>
+        <h1>
+          {razred ? razred.naziv : odjeljak.naziv} <span className="mjesto">· {jls.naziv}</span>
+        </h1>
+        <div className="oznake-glava">
+          <span>
+            NKD 2025. <b>{razred ? razred.razred : odjeljak.odjeljak}</b>
+            {razred ? ` · odjeljak ${odjeljak.odjeljak} – ${odjeljak.naziv}` : ` · ${odjeljak.podrucje_naziv}`}
+          </span>
+          <span>
+            {jlsVrsta(jls.grad)} {jls.naziv} · {zupanijaNom(jls.zupanija)}
+          </span>
+          <span>
+            <b>{fmt(jls.stanovnika)}</b> stanovnika
+          </span>
+        </div>
+      </div>
 
-      <div className="card">
+      <div className="card presuda-kartica ulaz ulaz-2">
         <div className="rezultat-glavni">
           <div className={`presuda ${g.status}`}>
             <div className="velika">
               <span aria-hidden="true">{st.ikona}</span> {st.oznaka}
             </div>
             {g.ocekivano !== null && g.interval ? (
-              <p style={{ fontSize: "1.08rem", marginTop: 8 }}>
+              <p className="tekst">
                 U {uOvom} {jls.naziv} registrirano je <strong>{subjekata(g.broj)}</strong> {uze ? "u ovom razredu" : "u ovoj djelatnosti"}.
                 Za {jls.grad ? "grad" : "općinu"} ovakve veličine i strukture očekivano je <strong>{fmt1(g.ocekivano)}</strong>{" "}
                 (80 % raspon <strong>{g.interval[0]}–{g.interval[1]}</strong>).
               </p>
             ) : (
-              <p style={{ marginTop: 8 }}>
+              <p className="tekst">
                 U {uOvom} {jls.naziv} registrirano je <strong>{subjekata(g.broj)}</strong>. {st.opis}
               </p>
             )}
             <p className="muted small">{st.opis}</p>
 
             <div className="brojke">
-              <div className="brojka">
+              <div className="brojka glavna">
                 <div className="v">{fmt(g.broj)}</div>
                 <div className="k">stvarno</div>
               </div>
@@ -173,7 +180,7 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
                   </span>
                 </div>
               )}
-              {razred && !uze && (
+              {razred && !uze && (razred.udio ?? 0) < 0.999 && (
                 <div className="oznaka info">
                   <span aria-hidden="true">i</span>
                   <span>
@@ -257,7 +264,7 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
       </div>
 
       <div className="card">
-        <h2>Što ovi brojevi ne vide</h2>
+        <Naslov ikona="oko">Što ovi brojevi ne vide</Naslov>
         <ul className="ne-vide">
           <li>
             <strong>Obrte.</strong> Sudski registar sadrži samo trgovačka društva i zadruge. Obrti su u Obrtnom registru, za koji ne
@@ -301,7 +308,7 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
 
       {razred && opisRazreda.length > 0 && (
         <div className="card">
-          <h2>Što obuhvaća razred {razred.razred}</h2>
+          <Naslov ikona="popis">Što obuhvaća razred {razred.razred}</Naslov>
           <p className="small muted">Iz službenog opisa NKD 2025. (DZS). Provjerite odgovara li vašoj ideji.</p>
           <ul className="opis-razreda">
             {opisRazreda.map(([, t], i) => (
@@ -349,7 +356,7 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
       </div>
 
       <div className="card">
-        <h2>Tržišni odlomak za poslovni plan</h2>
+        <Naslov ikona="dokument">Tržišni odlomak za poslovni plan</Naslov>
         <p className="muted small ne-ispis">Gotov tekst s izvorima. Kopirajte ga u zahtjev za potporu ili poslovni plan.</p>
         <div className="odlomak" id="odlomak">{odlomak}</div>
         <div className="btn-row ne-ispis" style={{ marginTop: 12 }}>
@@ -371,7 +378,7 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
 
       {prilike.length > 0 && (
         <div className="card ne-ispis">
-          <h2>Djelatnosti koje nedostaju u {jls.grad ? "gradu" : "općini"} {jls.naziv}</h2>
+          <Naslov ikona="kompas">Djelatnosti koje nedostaju u {jls.grad ? "gradu" : "općini"} {jls.naziv}</Naslov>
           <p className="muted small">Odjeljci sa statusom „nedostaje”, od najizraženijeg.</p>
           <div className="tbl-wrap">
             <table>
@@ -399,5 +406,26 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
         </div>
       )}
     </>
+  );
+}
+
+// Male ikone uz naslove odjeljaka (ukrasne, uz tekst naslova).
+const PUTANJE: Record<string, string> = {
+  oko: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z M3 3l18 18",
+  popis: "M8 6h13 M8 12h13 M8 18h13 M3.5 6h.01 M3.5 12h.01 M3.5 18h.01",
+  dokument: "M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z M14 3v6h6 M8 13h8 M8 17h5",
+  kompas: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z M15.5 8.5l-2 5-5 2 2-5z",
+};
+
+function Naslov({ ikona, children }: { ikona: keyof typeof PUTANJE; children: React.ReactNode }) {
+  return (
+    <div className="naslov-sekcije">
+      <span className="ikona" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d={PUTANJE[ikona]} />
+        </svg>
+      </span>
+      <h2 style={{ margin: 0 }}>{children}</h2>
+    </div>
   );
 }

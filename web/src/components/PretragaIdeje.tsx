@@ -49,15 +49,22 @@ export function PretragaIdeje({
       <label className="lbl" htmlFor="ideja">
         Opišite ideju u nekoliko riječi
       </label>
-      <input
-        id="ideja"
-        type="search"
-        placeholder="npr. frizerski salon za muškarce"
-        value={tekst}
-        onChange={(e) => setTekst(e.target.value)}
-        autoComplete="off"
-      />
+      <div className="unos-ikona">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+        <input
+          id="ideja"
+          type="search"
+          placeholder="npr. građevinska firma za gradnju kuća"
+          value={tekst}
+          onChange={(e) => setTekst(e.target.value)}
+          autoComplete="off"
+        />
+      </div>
       <div className="primjeri" aria-label="Primjeri">
+        <span className="muted">Primjeri:</span>
         {primjeri.map((p) => (
           <button key={p} type="button" className="chip" onClick={() => setTekst(p)}>
             {p}
@@ -86,7 +93,7 @@ export function PretragaIdeje({
                   }}
                 >
                   <span className="kod">{p.razred.razred}</span>
-                  <span>
+                  <span className="naziv">
                     {p.razred.naziv}
                     {i === 0 && siguran && <span className="oznaka-najbolji">najbolje odgovara</span>}
                   </span>

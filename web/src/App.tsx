@@ -15,11 +15,12 @@ const ZADANI_ODJELJAK = "96";
 
 function Logo() {
   return (
-    <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
-      <circle cx="16" cy="16" r="14" fill="none" stroke="var(--accent)" strokeWidth="2.5" />
-      <circle cx="16" cy="16" r="8" fill="none" stroke="var(--accent)" strokeWidth="2" opacity="0.5" />
-      <path d="M16 16 L26 8" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="21.5" cy="19.5" r="3" fill="var(--st-nedostaje)" />
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="9" fill="var(--btn)" />
+      <circle cx="16" cy="16" r="10" fill="none" stroke="var(--btn-ink)" strokeWidth="1.6" opacity="0.35" />
+      <circle cx="16" cy="16" r="5.5" fill="none" stroke="var(--btn-ink)" strokeWidth="1.6" opacity="0.6" />
+      <path d="M16 16 L24 9" stroke="var(--btn-ink)" strokeWidth="2.2" strokeLinecap="round" />
+      <circle cx="20.5" cy="20" r="2.6" fill="#4a90d9" />
     </svg>
   );
 }
@@ -69,7 +70,7 @@ export function App() {
       <header className="top">
         <div className="top-in">
           <a className="logo" href="#/">
-            <Logo /> NišaRadar
+            <Logo /> NišaRadar <span className="beta">Datathon 2026</span>
           </a>
           <nav className="glavna" aria-label="Glavna navigacija">
             {nav("#/", "Provjera ideje", "")}
@@ -83,14 +84,22 @@ export function App() {
       </main>
       <footer className="dno">
         <div className="in">
-          <span>
-            NišaRadar · Datathon Portala otvorenih podataka 2026. · kod pod licencom EUPL-1.2 ·{" "}
-            <a href="https://github.com/dlukas99/nisaradar">GitHub</a>
-          </span>
+          <div className="marka">
+            <Logo />
+            <div>
+              <strong>NišaRadar</strong>
+              <div>
+                Datathon Portala otvorenih podataka 2026. · izazov C · kod pod licencom EUPL-1.2 ·{" "}
+                <a href="https://github.com/dlukas99/nisaradar">GitHub</a>
+              </div>
+            </div>
+          </div>
           {d && (
-            <span>
-              Podaci: Sudski registar (MPUDT) od {datum(d.meta.snapshot_vrijeme)}, DZS, MRRFEU, DGU · <a href="#/izvori">izvori</a>
-            </span>
+            <div className="izvori-dno">
+              Podaci: Sudski registar (MPUDT) od {datum(d.meta.snapshot_vrijeme)}, DZS, MRRFEU, DGU, © OpenStreetMap contributors
+              <br />
+              <a href="#/izvori">Izvori, metoda i ograničenja</a>
+            </div>
           )}
         </div>
       </footer>
