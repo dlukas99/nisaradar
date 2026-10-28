@@ -196,7 +196,7 @@ Ako se šifre ne slažu, spajaj po normaliziranom nazivu JLS-a i županiji te ru
   - v1.5 (28.10., Domagoj prijavio problem): leksička pretraga nad **službenim opisima razreda iz DZS publikacije NKD 2025**
     (`pipeline/nkd_opisi.py`: uključuje + upute "vidi" iz isključuje, 6.193 opisa), IDF težine, tipfeleri samo za riječi izvan rječnika,
     poticaj odjeljcima prema vrsti posla. Najbolji prijedlog se odabire sam (osim ako je pokrivenost < 0,3; pokrivenost ne razlikuje točne od netočnih, pa nije mjera točnosti), uz prikaz službenog teksta "zašto".
-    Novi skup 42 opisa (`nkd_test_opisi_novi.csv`): top-1 66,7 %, top-3 90,5 %. Fuse.js uklonjen iz ovisnosti.
+    Novi skup 42 opisa (`nkd_test_opisi_novi.csv`): top-1 69,0 %, top-3 92,9 % (nakon dorade 28.10. popodne). Fuse.js uklonjen iz ovisnosti.
   - v2, ako stigne: `multilingual-e5-small` (MIT licenca) u pregledniku preko transformers.js, s unaprijed izračunatim embeddinzima NKD naziva.
   - Evaluacija: top-1 i top-3 točnost na oko 100 ručno označenih opisa ideja.
 - **D8. Tržišni odlomak:** deterministički predložak. Svaka brojka dolazi iz podataka i ima izvor. **Bez LLM-a u v1.**
@@ -231,6 +231,21 @@ Ako se šifre ne slažu, spajaj po normaliziranom nazivu JLS-a i županiji te ru
   - UI za svaku ćeliju prikazuje je li nalaz potvrđen na užem izvoru (`status_uzi`).
   - Rezultat: semafor je isti u 95,7 % ćelija; "nedostaje" je potvrđen u 38 %, "zasićeno" u 64 % (detalji u `docs/evaluacija.md`).
   - `build.py` ispod praga samo upozorava i ne staje.
+
+- **D15. Uži pogled po razredu (28.10., Domagoj: "treba biti uže vezano za djelatnost"):** mijenja D1 za prikaz, ne za model.
+  - Razred se dodjeljuje istim redoslijedom izvora kao odjeljak; NKD 2007 se mapira na razred 2025 **unutar** odabranog odjeljka
+    (empirijski najčešći), pa se razredi točno zbrajaju u odjeljak (provjereno: 0 odstupanja).
+  - Očekivanje razreda = očekivanje odjeljka × nacionalni udio razreda u odjeljku. Stanjivanje NB2 zadržava isti α, pa raspon i
+    semafor idu po D5 (računa ih preglednik, `ocijeni()` u `web/src/lib/stat.ts`).
+  - Samo za razrede s ≥ 50 subjekata u RH u modeliranim odjeljcima (256 razreda); inače se prikazuje odjeljak.
+  - Provjera: pokrivenost 80 % raspona na razini razreda 0,798 (u uzorku; odjeljak 0,804). Razred "nedostaje" 0,25 %, "zasićeno" 4,1 %.
+  - Pretpostavka (udio razreda svugdje sličan) piše se u UI-ju.
+- **D16. Lokali s OpenStreetMap karte (28.10.):** Sudski registar ne vidi obrte ni poslovnice lanaca (broji po sjedištu). Domagoj je
+  primijetio da Čaglin ima 5 trgovina, a registar 0 tvrtki u trgovini (provjereno: 12 tvrtki u Čaglinu, nijedna u 46/47, 5 bez šifre).
+  - OSM (ODbL) broji stvarne lokale bez obzira na pravni oblik: Čaglin 4 trgovine na karti. U RH: 4.779 lokala razreda 47.11 na karti
+    prema 731 tvrtki u registru.
+  - Prikazuje se kao **informacija uz model, ne ulaz u model**: karta je nepotpuna i neravnomjerno ucrtana (Beli Manastir: 1 frizer na karti).
+  - `pipeline/osm.py` (Overpass, jednom/ručno, ne noćno) + ručno mapiranje `data/reference/osm_nkd.csv` (oko 120 oznaka, šifre provjerene).
 
 ## 5. Arhitektura (MVP bez poslužitelja)
 
@@ -349,6 +364,14 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
   - `fetch_sudreg.py` s checkpointom testiran na punom dohvatu (snapshot 1349, bez duplikata).
   - Web (Vite/React/TS/MapLibre/Fuse.js) radi lokalno. Paleta semafora je validirana za CVD (plava/narančasto-crvena + siva sredina).
   - Workflowi: `nightly.yml`, `pages.yml`, `sudreg_test.yml`.
+- 28.10. (Domagoj testirao javnu stranicu): pretraga v1.5 (D7), D15 razred, D16 OSM.
+  - Obrti, provjereno ponovno: na data.gov.hr nema nacionalnog skupa; Obrtni registar (pretrazivac-obrta.gov.hr) odbija programski
+    pristup ("Request Rejected"); HOK "Obrtništvo u brojkama" je PDF po županijama bez otvorene licence; DZS od 2025. ne objavljuje obrte.
+  - Greška u modelu ispravljena: za α ≈ 0 (9 odjeljaka) scipy je davao NaN, pa je raspon bio [0, 0], a status "zasićeno"; sada Poisson.
+    Promijenilo se 34 ćelije (sve odjeljak 64). Evaluacija ista (PIT 0,757).
+  - Greška u pregledniku ispravljena: razdioba se računala samo do 2.000 subjekata (Zagreb).
+  - Scenarij videa: primjer Belišće, gradnja zgrada 41.00 (1 prema 9,0; potvrđeno na užem izvoru). Beli Manastir 96.21 na razini razreda je "u ravnoteži".
+  - Lokalno: pandas 3.1 blokira Smart App Control, pa je u `.venv` pandas 2.2.3 (radi). CI koristi najnoviji.
 
 ## 10. Otvorena pitanja / NEPROVJERENO
 
@@ -363,10 +386,9 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
 - [x] D7 evaluacija (28.10.): 104 opisa u `data/reference/nkd_test_opisi.csv`. v1 izvan uzorka: top-1 87,5 %, top-3 89,4 %.
       Nakon općih izmjena (sinonimi kao polje + ignoreFieldNorm, lagani stemmer, manja težina generičkih riječi): top-1 90,4 %, top-3 97,1 % (djelomično u uzorku).
       Nepristrana procjena traži nove opise od korisnika (test 5.11.). Skripta: `npm run eval:pretraga` u `web/`.
-- [x] D7 v1.5 (28.10.): pretraga nad službenim opisima NKD 2025, vidi D7. Novi skup: top-3 59,5 % -> 90,5 %. Jedna oznaka u starom skupu
+- [x] D7 v1.5 (28.10.): pretraga nad službenim opisima NKD 2025, vidi D7. Novi skup: top-3 59,5 % -> 92,9 %. Jedna oznaka u starom skupu
       bila je kriva (krovopokrivački radovi su u NKD 2025 razred 43.41, ne 43.99), ispravljen i sinonim.
-- [ ] Lokalno: Windows Smart App Control blokira DLL pandasa u `.venv` ("An Application Control policy has blocked this file").
-      Pipeline na GitHubu radi normalno. Lokalno: `pip install --force-reinstall pandas` ili isključiti Smart App Control.
+- [x] Lokalno: Windows Smart App Control blokira DLL pandasa 3.1 u `.venv`. Riješeno instalacijom pandas 2.2.3.
 - [x] GitHub runner ima pristup Sudreg API-ju (28.10.): "Test pristupa" prošao, noćni workflow dohvatio sve tablice (pipeline 5,5 min) i objavio stranicu.
       Upozorenja "Node.js 20 is deprecated" u Actionsima su bezopasna (akcije se izvode na Node 24); verzije akcija podići kad izađu nove glavne verzije.
 - [ ] Šifre u `pretezite_djelatnosti` s NKD 2002 (2 retka) nemaju pravilo mapiranja u D12.
@@ -378,7 +400,8 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
 - [x] Popis 2021. po JLS-u s dobnim skupinama (DZS XLSX, tablica 6)
 - [x] Indeks razvijenosti (MRRFEU PDF, parsira se `pdfplumberom`)
 - [x] Granice JLS-a: DGU INSPIRE, Otvorena dozvola
-- [ ] Postoji li otvoreni agregat obrta po JLS-u / NKD-u
+- [ ] Postoji li otvoreni agregat obrta po JLS-u / NKD-u. 28.10.: ne postoji (vidi 9). Prijedlog: zahtjev za pristup informacijama
+      Ministarstvu gospodarstva za agregat "broj aktivnih obrta po JLS × NKD 2025 razred" (bez osobnih podataka) i spomenuti u videu.
 - [ ] Upit na open.data@mpudt.hr: kako se računa 60 bodova kad je ukupno "zbroj bodova članova Povjerenstva"; tko je voditelj tima
 - [ ] Administracija: mentor potvrđen? drugi student? svi prijavljeni do 30.10.?
 

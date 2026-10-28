@@ -101,7 +101,9 @@ Korisnik uvijek može odabrati drugi prijedlog ili odjeljak izravno, pa je za UX
   **top-1 42,9 % i top-3 59,5 %**: pretraga po sličnosti slova nije razumjela opise izvan svojih sinonima. To je bio stvarni problem
   koji je primijetio i korisnik ("projektiranje solarnih panela" -> stolarija).
 - Promašaji stare pretrage na novom skupu bili su viđeni prije izrade nove, a dva opća pravila ("prodaja" = trgovina na malo,
-  "automobil" = motorno vozilo) dodana su nakon prvog mjerenja nove pretrage. Ni novi skup zato nije potpuno nepristran.
+  "automobil" = motorno vozilo) dodana su nakon prvog mjerenja nove pretrage. Nakon prijave korisnika ("lijepiti pločice keramiku"
+  -> proizvodnja keramike) dodana su još opća pravila: pridjevi na -čki svode se na imenicu (keramički -> keramika), množina na -ova,
+  glagoli vrste posla (lijepiti, polagati, popravljati, graditi...) i nekoliko sinonima. Ni novi skup zato nije potpuno nepristran.
 - **Nepristranu procjenu daje tek test s korisnicima (5.11.)**: njihove opise treba zapisati prije nego što se pretraga na njima
   ispravlja.
 

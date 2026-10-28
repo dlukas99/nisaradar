@@ -35,6 +35,8 @@ export interface Razred {
   odjeljak: string;
   sinonimi: string;
   broj_rh: number;
+  /** Udio razreda u odjeljku u RH (D15); null ako razred ima premalo subjekata ili odjeljak nije modeliran. */
+  udio: number | null;
 }
 
 export interface Celija {
@@ -52,6 +54,8 @@ export interface Deficit {
   sifra: number;
   odjeljci: Celija[];
   razredi: Record<string, number>;
+  /** Lokali na OpenStreetMap karti po razredu (D16). */
+  osm: Record<string, number>;
 }
 
 export interface OdjeljakJls {
@@ -114,6 +118,7 @@ export interface Meta {
     subjekata_pretezita: number;
   };
   odjeljci_obrti: string[];
+  osm: { dohvaceno: string; licenca: string; objekata: number; razredi: string[] } | null;
   izvori: Izvor[];
   izvori_provjereno: string;
 }

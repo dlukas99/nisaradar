@@ -1,6 +1,6 @@
 # Metodologija
 
-Odluke su numerirane (D1–D14) i vode se u `CLAUDE.md`. Ovdje je sažetak za čitatelja.
+Odluke su numerirane (D1–D16) i vode se u `CLAUDE.md`. Ovdje je sažetak za čitatelja.
 
 ## 1. Obuhvat (D2, D13)
 
@@ -65,6 +65,16 @@ Za diskretne brojeve je pravilo konzervativno. Kad je očekivanje malo (npr. μ 
 "nedostaje" ne može izaći. To je namjerno: deficit tvrdimo samo kad je statistički uvjerljiv. Ishod je 0,7 % ćelija
 "nedostaje", 4,9 % "zasićeno" i 94,4 % "u ravnoteži".
 
+### Uži pogled po razredu (D15)
+
+Kad korisnik odabere razred (4 znamenke), glavni zaključak je za razred. Očekivanje razreda u JLS-u je očekivanje odjeljka
+pomnoženo s udjelom razreda u odjeljku u RH. Ako je broj u odjeljku NegBin(μ, α), a svaki subjekt neovisno pripada razredu s
+vjerojatnošću s, broj u razredu je NegBin(sμ, α) s istim α. Zato raspon i semafor za razred idu istim pravilom (D5).
+
+- Razred se dodjeljuje istim redoslijedom izvora kao odjeljak, a NKD 2007 se mapira na razred 2025 unutar istog odjeljka.
+- Računa se samo za razrede s barem 50 subjekata u RH (256 razreda).
+- Pretpostavka je da je udio razreda svugdje sličan. Provjera na svim JLS-ovima: stvarni broj je u 80 % rasponu u 79,8 % slučajeva.
+
 ## 5. Evaluacija (D6)
 
 - GroupKFold po županijama (21 grupa): model nikad ne vidi JLS-ove županije koju predviđa.
@@ -92,7 +102,7 @@ razreda): nazivi razreda i podrazreda, stavke "Ovaj podrazred uključuje" i uput
 - Najbolji prijedlog se odabire sam, a uz svaki prijedlog prikazuje se službeni tekst zbog kojeg je predložen. Ako alat ne
   prepozna većinu riječi opisa (pokrivenost < 0,3), kaže da nije siguran i ne odabire ništa sam. Pokrivenost nije mjera
   točnosti: na testnim skupovima jednako je visoka kod točnih i netočnih prijedloga.
-- Evaluacija na 42 nova opisa (napisana prije izrade ove pretrage): top-1 66,7 %, top-3 90,5 %; prva inačica 42,9 % i 59,5 %.
+- Evaluacija na 42 nova opisa (napisana prije izrade ove pretrage): top-1 69,0 %, top-3 92,9 %; prva inačica 42,9 % i 59,5 %.
   Detalji i napomena o pristranosti su u [evaluacija_pretrage.md](evaluacija_pretrage.md).
 
 ## 7. Tržišni odlomak (D8)
@@ -100,7 +110,14 @@ razreda): nazivi razreda i podrazreda, stavke "Ovaj podrazred uključuje" i uput
 Deterministički predložak (`web/src/lib/odlomak.ts`), bez LLM-a. Sadrži broj subjekata, stanovnike, očekivanje
 i raspon, zaključak, stope na 10.000 stanovnika (JLS, županija, RH), broj u razredu, ograde (obrti, pouzdanost) i izvore.
 
-## 8. Ograničenja
+## 8. Ograničenja i drugi pogled: OpenStreetMap (D16)
+
+Sudski registar broji tvrtke u mjestu sjedišta. Ne vidi obrte ni poslovnice tvrtki sa sjedištem drugdje (trgovački lanci, banke,
+benzinske postaje). Primjer: Općina Čaglin ima 12 tvrtki, nijednu u trgovini, a na karti OpenStreetMap ucrtane su 4 trgovine.
+U cijeloj RH registar u razredu 47.11 (dućani i supermarketi) ima 731 tvrtku, a karta 4.779 takvih lokala.
+
+Zato rezultat prikazuje i broj lokala iste vrste na karti OpenStreetMap (ODbL). Karta bilježi lokale bez obzira na pravni
+oblik, ali je nepotpuna i neravnomjerno ucrtana, pa nije ulaz u model nego informacija uz njega.
 
 - Obrti nisu u Sudskom registru (D3). Ako je udio obrta po regijama sličan, relativni deficit ostaje valjan.
   Za odjeljke u kojima prevladavaju obrti (01, 43, 56, 95, 96) prikazuje se oznaka "niža pouzdanost".

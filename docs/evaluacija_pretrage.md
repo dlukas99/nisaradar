@@ -25,10 +25,10 @@ Ukupno 6.193 službena opisa za 646 od 651 razreda, uz ručne sinonime za razgov
 
 | Skup i inačica | Top-1 | Top-3 | Prvi prijedlog u točnom odjeljku | Bez prijedloga |
 |---|---|---|---|---|
-| Stari skup – samo nazivi i sinonimi | 95,2 % | 99,0 % | 96,2 % | 0 |
+| Stari skup – samo nazivi i sinonimi | 94,2 % | 99,0 % | 95,2 % | 0 |
 | Stari skup – sa službenim opisima | 94,2 % | 100,0 % | 95,2 % | 0 |
-| **Novi skup – samo nazivi i sinonimi** | 57,1 % | 71,4 % | 69,0 % | 1 |
-| **Novi skup – sa službenim opisima** | 66,7 % | 90,5 % | 81,0 % | 0 |
+| **Novi skup – samo nazivi i sinonimi** | 57,1 % | 73,8 % | 71,4 % | 1 |
+| **Novi skup – sa službenim opisima** | 69,0 % | 92,9 % | 81,0 % | 0 |
 
 Korisnik uvijek može odabrati drugi prijedlog ili odjeljak izravno, pa je za UX ključna top-3 točnost.
 
@@ -41,7 +41,9 @@ Korisnik uvijek može odabrati drugi prijedlog ili odjeljak izravno, pa je za UX
   **top-1 42,9 % i top-3 59,5 %**: pretraga po sličnosti slova nije razumjela opise izvan svojih sinonima. To je bio stvarni problem
   koji je primijetio i korisnik ("projektiranje solarnih panela" -> stolarija).
 - Promašaji stare pretrage na novom skupu bili su viđeni prije izrade nove, a dva opća pravila ("prodaja" = trgovina na malo,
-  "automobil" = motorno vozilo) dodana su nakon prvog mjerenja nove pretrage. Ni novi skup zato nije potpuno nepristran.
+  "automobil" = motorno vozilo) dodana su nakon prvog mjerenja nove pretrage. Nakon prijave korisnika ("lijepiti pločice keramiku"
+  -> proizvodnja keramike) dodana su još opća pravila: pridjevi na -čki svode se na imenicu (keramički -> keramika), množina na -ova,
+  glagoli vrste posla (lijepiti, polagati, popravljati, graditi...) i nekoliko sinonima. Ni novi skup zato nije potpuno nepristran.
 - **Nepristranu procjenu daje tek test s korisnicima (5.11.)**: njihove opise treba zapisati prije nego što se pretraga na njima
   ispravlja.
 
@@ -49,7 +51,6 @@ Korisnik uvijek može odabrati drugi prijedlog ili odjeljak izravno, pa je za UX
 
 | Opis | Točno | Prva tri prijedloga |
 |---|---|---|
-| prodaja auto dijelova | 47.82 | 47.30, 47.81, 46.87 |
 | skladište i logistika za web trgovine | 52.10 | 47.91, 62.10, 68.20 |
 | razvoj video igara | 62.10 | 59.11, 74.20, 60.20 |
 | održavanje stambenih zgrada | 81.10 | 81.30, 81.21, 81.22 |

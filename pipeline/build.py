@@ -70,6 +70,30 @@ def mapa_2007_2025(sub: pd.DataFrame) -> pd.Series:
     return pd.Series({r: izaberi(r, o) for r, o in kandidati.items()}, name="odj2025"), kandidati.map(len) > 1
 
 
+def mapa_razreda_2007_2025(sub: pd.DataFrame, mapa_odj: pd.Series) -> pd.Series:
+    """Razred NKD 2007 -> razred NKD 2025 (D15), uvijek unutar odjeljka koji je razredu dodijelio mapa_2007_2025.
+
+    Kandidati su podrazredi iz službene tablice veza koji leže u tom odjeljku. Ako ih je više, uzima se razred koji je
+    najčešći među subjektima s obje šifre (pretežita 2025 i glavna 2007), inače prvi iz tablice. Tako je razred
+    uvijek dosljedan odjeljku, pa se brojevi razreda zbrajaju u broj odjeljka.
+    """
+    k = pd.read_csv(REF / "nkd_2007_2025.csv", dtype=str)
+    k["raz"] = k.nkd2025.str[:5]
+    k = k[k.raz.str[:2] == k.nkd2007.map(mapa_odj)]
+    kandidati = k.groupby("nkd2007").raz.apply(lambda s: list(dict.fromkeys(s)))
+    oba = sub.dropna(subset=["razred2007_glavna", "razred2025_pretezita"])
+    empirija = oba.groupby(["razred2007_glavna", "razred2025_pretezita"]).size()
+
+    def izaberi(razred: str, razredi: list[str]) -> str:
+        if len(razredi) == 1 or razred not in empirija.index.get_level_values(0):
+            return razredi[0]
+        e = empirija.loc[razred]
+        e = e[e.index.isin(razredi)]
+        return e.idxmax() if len(e) else razredi[0]
+
+    return pd.Series({r: izaberi(r, o) for r, o in kandidati.items()}, name="razred2025")
+
+
 def subjekti_u_obuhvatu() -> pd.DataFrame:
     su = pd.read_parquet(FULL / "subjekti.parquet", columns=["mbs", "postupak", "glavna_djelatnost"])
     po = pd.read_parquet(FULL / "pravni_oblici.parquet", columns=["mbs", "vrsta_pravnog_oblika_id"])
@@ -101,8 +125,15 @@ def dodijeli_odjeljak(d: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     d.loc[d.odj2025_glavna.notna(), "izvor"] = "glavna 2007"
     d.loc[d.razred2007_pretezita.notna(), "izvor"] = "pretežita 2007"
     d.loc[d.odj2025_pretezita.notna(), "izvor"] = "pretežita 2025"
-    # Razred (4 znamenke, D1) samo za informaciju: ima ga samo pretežita 2025 (bez mapiranja razreda).
-    d["razred"] = d.razred2025_pretezita
+    # Razred (4 znamenke, D15): isti redoslijed izvora kao za odjeljak, 2007 se mapira unutar odabranog odjeljka.
+    mapa_raz = mapa_razreda_2007_2025(d, mapa)
+    d["razred"] = (d.razred2025_pretezita.fillna(d.razred2007_pretezita.map(mapa_raz))
+                   .fillna(d.razred2007_glavna.map(mapa_raz)))
+    # Kontrola dosljednosti: razred mora biti u odjeljku subjekta.
+    nedosljedni = d.razred.notna() & (d.razred.str[:2] != d.odjeljak)
+    if nedosljedni.any():
+        print(f"UPOZORENJE: {int(nedosljedni.sum())} subjekata s razredom izvan odjeljka; razred im se briše.")
+        d.loc[nedosljedni, "razred"] = None
 
     # Kontrola D12 na istoj verziji.
     oba = d.dropna(subset=["odj2025_pretezita", "odj2025_glavna"])

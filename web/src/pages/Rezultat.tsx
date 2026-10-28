@@ -4,13 +4,21 @@ import { StatusOznaka } from "../components/StatusOznaka";
 import type { Deficit, Osnovno, OdjeljakDatoteka } from "../lib/data";
 import { dohvati } from "../lib/data";
 import { STATUS, fmt, fmt1, jlsVrsta, postotak, subjekata } from "../lib/format";
-import { na10k, tekstOdlomka } from "../lib/odlomak";
+import { na10k, tekstOdlomka, type UziPogled } from "../lib/odlomak";
+import type { Opisi } from "../lib/pretraga";
+import { ocijeni } from "../lib/stat";
 
 export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: number; odj: string; razredKod: string | null }) {
   const [def, setDef] = useState<Deficit | null>(null);
   const [odjDat, setOdjDat] = useState<OdjeljakDatoteka | null>(null);
   const [greska, setGreska] = useState<string | null>(null);
   const [kopirano, setKopirano] = useState(false);
+  const [opisi, setOpisi] = useState<Opisi | null>(null);
+
+  // Službeni opis razreda ("Ovaj podrazred uključuje ...") da korisnik vidi što točno spada u djelatnost.
+  useEffect(() => {
+    if (razredKod) dohvati<Opisi>("nkd_opisi.json").then(setOpisi, () => setOpisi({}));
+  }, [razredKod]);
 
   useEffect(() => {
     setDef(null);
@@ -27,6 +35,26 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
   const odjeljak = d.odjeljci.find((o) => o.odjeljak === odj);
   const razred = razredKod ? d.razredi.find((r) => r.razred === razredKod) : undefined;
   const celija = def?.odjeljci.find((c) => c.odjeljak === odj);
+
+  // D15: uži pogled po razredu. Očekivanje razreda = očekivanje odjeljka × udio razreda u odjeljku u RH;
+  // negativna binomna razdioba stanjivanjem zadržava isti α, pa raspon i semafor računamo istim pravilom (D5).
+  const uze: UziPogled | undefined = useMemo(() => {
+    if (!razred || razred.udio === null || !def || !celija || celija.ocekivano === null || !odjeljak || odjeljak.alpha === null)
+      return undefined;
+    const broj = def.razredi[razred.razred] ?? 0;
+    const ocekivano = celija.ocekivano * razred.udio;
+    const o = ocijeni(ocekivano, odjeljak.alpha, broj);
+    return { razred, broj, ocekivano, interval: o.interval, status: o.status };
+  }, [razred, def, celija, odjeljak]);
+
+  // D16: lokali na OpenStreetMap karti; undefined ako karta za ovu vrstu djelatnosti nema oznaku.
+  const osm = useMemo(() => {
+    if (!def || !d.meta.osm) return undefined;
+    const mapirani = new Set(d.meta.osm.razredi);
+    if (razred) return mapirani.has(razred.razred) ? def.osm[razred.razred] ?? 0 : undefined;
+    const uOdjeljku = [...mapirani].filter((r) => r.startsWith(odj + "."));
+    return uOdjeljku.length ? uOdjeljku.reduce((zbroj, r) => zbroj + (def.osm[r] ?? 0), 0) : undefined;
+  }, [def, d.meta.osm, razred, odj]);
 
   const stope = useMemo(() => {
     if (!odjDat || !jls) return null;
@@ -66,12 +94,19 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
   if (greska) return <p className="greska">Podaci se nisu mogli učitati ({greska}).</p>;
   if (!def || !celija || !stope) return <p className="ucitavanje">Učitavam rezultat…</p>;
 
-  const st = STATUS[celija.status];
+  // Glavni prikaz: razred ako ga možemo procijeniti (uže, D15), inače odjeljak.
+  const g = uze
+    ? { status: uze.status, broj: uze.broj, ocekivano: uze.ocekivano as number | null, interval: uze.interval as [number, number] | null }
+    : { status: celija.status, broj: celija.broj, ocekivano: celija.ocekivano, interval: celija.interval };
+  const st = STATUS[g.status];
   const odlomak = tekstOdlomka({
-    jls, odjeljak, celija, razred, brojURazredu: razred ? def.razredi[razred.razred] ?? 0 : undefined,
+    jls, odjeljak, celija, uze, osm,
+    razred: uze ? undefined : razred, brojURazredu: !uze && razred ? def.razredi[razred.razred] ?? 0 : undefined,
     meta: d.meta, stopaZupanija: stope.zupanija, stopaRh: stope.rh,
   });
-  const potvrda = celija.status_uzi;
+  const potvrda = uze ? null : celija.status_uzi;
+  const opisRazreda = razred && opisi ? (opisi[razred.razred] ?? []).filter(([izv]) => izv !== "r").slice(0, 8) : [];
+  const uOvom = jls.grad ? "gradu" : "općini";
 
   return (
     <>
@@ -79,49 +114,71 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
         <a href="#/">← Nova provjera</a>
       </p>
       <h1>
-        {odjeljak.naziv}
+        {razred ? razred.naziv : odjeljak.naziv}
         <span className="muted" style={{ fontWeight: 500 }}> · {jls.naziv}</span>
       </h1>
       <p className="muted">
-        NKD 2025. odjeljak {odjeljak.odjeljak} ({odjeljak.podrucje_naziv})
-        {razred && <> · vaša ideja: razred {razred.razred} {razred.naziv}</>} · {jlsVrsta(jls.grad)} {jls.naziv}, {jls.zupanija} županija
+        {razred ? (
+          <>NKD 2025. razred {razred.razred} (odjeljak {odjeljak.odjeljak} – {odjeljak.naziv})</>
+        ) : (
+          <>NKD 2025. odjeljak {odjeljak.odjeljak} ({odjeljak.podrucje_naziv})</>
+        )}{" "}
+        · {jlsVrsta(jls.grad)} {jls.naziv}, {jls.zupanija} županija
       </p>
 
       <div className="card">
         <div className="rezultat-glavni">
-          <div className={`presuda ${celija.status}`}>
+          <div className={`presuda ${g.status}`}>
             <div className="velika">
               <span aria-hidden="true">{st.ikona}</span> {st.oznaka}
             </div>
-            {celija.ocekivano !== null && celija.interval ? (
+            {g.ocekivano !== null && g.interval ? (
               <p style={{ fontSize: "1.08rem", marginTop: 8 }}>
-                U {jls.grad ? "gradu" : "općini"} {jls.naziv} posluje <strong>{subjekata(celija.broj)}</strong> u ovoj djelatnosti.
-                Za {jls.grad ? "grad" : "općinu"} ovakve veličine i strukture očekivano je <strong>{fmt1(celija.ocekivano)}</strong>{" "}
-                (80 % raspon <strong>{celija.interval[0]}–{celija.interval[1]}</strong>).
+                U {uOvom} {jls.naziv} registrirano je <strong>{subjekata(g.broj)}</strong> {uze ? "u ovom razredu" : "u ovoj djelatnosti"}.
+                Za {jls.grad ? "grad" : "općinu"} ovakve veličine i strukture očekivano je <strong>{fmt1(g.ocekivano)}</strong>{" "}
+                (80 % raspon <strong>{g.interval[0]}–{g.interval[1]}</strong>).
               </p>
             ) : (
               <p style={{ marginTop: 8 }}>
-                U {jls.grad ? "gradu" : "općini"} {jls.naziv} posluje <strong>{subjekata(celija.broj)}</strong>. {st.opis}
+                U {uOvom} {jls.naziv} registrirano je <strong>{subjekata(g.broj)}</strong>. {st.opis}
               </p>
             )}
             <p className="muted small">{st.opis}</p>
 
             <div className="brojke">
               <div className="brojka">
-                <div className="v">{fmt(celija.broj)}</div>
+                <div className="v">{fmt(g.broj)}</div>
                 <div className="k">stvarno</div>
               </div>
               <div className="brojka">
-                <div className="v">{celija.ocekivano !== null ? fmt1(celija.ocekivano) : "–"}</div>
+                <div className="v">{g.ocekivano !== null ? fmt1(g.ocekivano) : "–"}</div>
                 <div className="k">očekivano</div>
               </div>
               <div className="brojka">
-                <div className="v">{celija.interval ? `${celija.interval[0]}–${celija.interval[1]}` : "–"}</div>
+                <div className="v">{g.interval ? `${g.interval[0]}–${g.interval[1]}` : "–"}</div>
                 <div className="k">80 % raspon</div>
               </div>
             </div>
 
             <div className="oznake">
+              {uze && (
+                <div className="oznaka info">
+                  <span aria-hidden="true">i</span>
+                  <span>
+                    Procjena za razred: očekivanje cijelog odjeljka × udio razreda u odjeljku u RH ({postotak(uze.razred.udio ?? 0)}).
+                    Pretpostavlja da je taj udio svugdje sličan.
+                  </span>
+                </div>
+              )}
+              {razred && !uze && (
+                <div className="oznaka info">
+                  <span aria-hidden="true">i</span>
+                  <span>
+                    Razred {razred.razred} ima premalo tvrtki u Hrvatskoj za vlastitu procjenu, pa prikazujemo cijeli odjeljak{" "}
+                    {odjeljak.odjeljak}. U razredu je ovdje registrirano {subjekata(def.razredi[razred.razred] ?? 0)}.
+                  </span>
+                </div>
+              )}
               {celija.status !== "premalo" && potvrda && (
                 <div className={`oznaka ${potvrda === celija.status ? "ok" : ""}`}>
                   <span aria-hidden="true">{potvrda === celija.status ? "✓" : "!"}</span>
@@ -154,46 +211,95 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
                   </span>
                 </div>
               )}
-              <div className="oznaka info">
-                <span aria-hidden="true">i</span>
-                <span>
-                  Pokrivenost: trgovačka društva i zadruge, bez obrta. {postotak(jls.udio_bez_sifre)} tvrtki u ovom JLS-u nema
-                  šifru djelatnosti i nije uključeno.
-                </span>
-              </div>
             </div>
           </div>
 
           <div>
-            {celija.ocekivano !== null && celija.interval && odjeljak.alpha !== null ? (
+            {g.ocekivano !== null && g.interval && odjeljak.alpha !== null ? (
               <>
                 <h3>Koliko je tvrtki uobičajeno ovdje?</h3>
                 <p className="small muted">
                   Vjerojatnost svakog mogućeg broja tvrtki prema modelu, za {jls.grad ? "grad" : "općinu"} veličine, dobne strukture i razvijenosti kao {jls.naziv}.
                 </p>
-                <Razdioba mu={celija.ocekivano} alpha={odjeljak.alpha} stvarno={celija.broj} interval={celija.interval} />
+                <Razdioba mu={g.ocekivano} alpha={odjeljak.alpha} stvarno={g.broj} interval={g.interval} />
               </>
             ) : (
               <p className="muted">
                 Odjeljak ima manje od 50 tvrtki u cijeloj Hrvatskoj, pa za njega ne računamo očekivanje.
               </p>
             )}
+            {uze && (
+              <div className="sira">
+                <span className="small muted">Šira djelatnost: odjeljak {odjeljak.odjeljak} – {odjeljak.naziv}</span>
+                <div className="sira-red">
+                  <StatusOznaka status={celija.status} mala />
+                  <span className="small">
+                    stvarno <strong>{fmt(celija.broj)}</strong>
+                    {celija.ocekivano !== null && celija.interval && (
+                      <>, očekivano {fmt1(celija.ocekivano)} ({celija.interval[0]}–{celija.interval[1]})</>
+                    )}
+                  </span>
+                </div>
+              </div>
+            )}
             <p className="small" style={{ marginTop: 12 }}>
-              Na 10.000 stanovnika: <strong>{fmt1(na10k(celija.broj, jls.stanovnika))}</strong> ovdje ·{" "}
+              Tvrtki u odjeljku {odjeljak.odjeljak} na 10.000 stanovnika: <strong>{fmt1(na10k(celija.broj, jls.stanovnika))}</strong> ovdje ·{" "}
               {fmt1(stope.zupanija)} u županiji · {fmt1(stope.rh)} u RH
             </p>
-            {razred && (
-              <p className="small">
-                U užem razredu {razred.razred} ovdje posluje <strong>{subjekata(def.razredi[razred.razred] ?? 0)}</strong>{" "}
-                <span className="muted">(samo informativno, model radi na razini odjeljka)</span>.
-              </p>
-            )}
             <p className="ne-ispis small">
               <a href={`#/karta/${jls.sifra_zupanije}/${odj}?jls=${jls.sifra}`}>Usporedi s ostalim JLS-ovima u županiji →</a>
             </p>
           </div>
         </div>
       </div>
+
+      <div className="card">
+        <h2>Što ovi brojevi ne vide</h2>
+        <ul className="ne-vide">
+          <li>
+            <strong>Obrte.</strong> Sudski registar sadrži samo trgovačka društva i zadruge. Obrti su u Obrtnom registru, za koji ne
+            postoje otvoreni podaci po djelatnosti i općini. Model zato uspoređuje tvrtke s tvrtkama: kaže ima li ovdje
+            neuobičajeno malo ili puno <em>tvrtki</em>, a ne svih poduzetnika.
+            {odjeljak.obrti && <> U ovoj djelatnosti obrti obično prevladavaju, pa je zaključak samo okviran.</>}
+          </li>
+          <li>
+            <strong>Poslovnice.</strong> Tvrtka se broji u mjestu sjedišta. Prodavaonica trgovačkog lanca, poslovnica banke ili
+            benzinska postaja tvrtke sa sjedištem u drugom gradu ovdje se ne vidi.
+          </li>
+          <li>
+            <strong>Tvrtke bez šifre djelatnosti:</strong> {postotak(jls.udio_bez_sifre)} tvrtki u ovom JLS-u nema upisanu
+            djelatnost, pa nisu u izračunu.
+          </li>
+        </ul>
+        {osm !== undefined && (
+          <div className="osm">
+            <div className="osm-broj">{osm}</div>
+            <div>
+              <strong>broj lokala ove vrste na karti OpenStreetMap u {uOvom} {jls.naziv}</strong>
+              <p className="small muted" style={{ margin: "4px 0 0" }}>
+                Karta bilježi stvarne lokale na terenu, uključujući obrte i poslovnice lanaca, ali je nepotpuna (ucrtavaju je
+                volonteri), osobito u manjim mjestima. Broj je zato donja granica, a ne točan popis. Usporedite ga sa
+                svojim poznavanjem mjesta.{" "}
+                <a href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(jls.naziv + ", Hrvatska")}`} target="_blank" rel="noreferrer">
+                  Otvori kartu
+                </a>
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {razred && opisRazreda.length > 0 && (
+        <div className="card">
+          <h2>Što obuhvaća razred {razred.razred}</h2>
+          <p className="small muted">Iz službenog opisa NKD 2025. (DZS). Provjerite odgovara li vašoj ideji.</p>
+          <ul className="opis-razreda">
+            {opisRazreda.map(([, t], i) => (
+              <li key={i}>{t.charAt(0).toUpperCase() + t.slice(1)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="card">
         <details className="kako">
@@ -203,6 +309,12 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
             stanovnika i četiri obilježja. Model je negativna binomna regresija naučena na svih {d.meta.obuhvat.jls} gradova i općina.
             Zatim stvarni broj uspoređujemo s očekivanom razdiobom:
           </p>
+          {uze && (
+            <p>
+              Za uži razred očekivanje je očekivanje cijelog odjeljka pomnoženo s udjelom razreda u odjeljku u Hrvatskoj
+              ({postotak(uze.razred.udio ?? 0)}). Provjera na svim gradovima i općinama: stvarni broj je u 80 % rasponu u 79,8 % slučajeva.
+            </p>
+          )}
           <ul>
             <li><strong>Nedostaje</strong> ako je stvarni broj ispod 10. percentila očekivanja,</li>
             <li><strong>Zasićeno</strong> ako je iznad 90. percentila,</li>

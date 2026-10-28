@@ -93,7 +93,13 @@ def fit_negbin(train: pd.DataFrame, test: pd.DataFrame) -> tuple[np.ndarray, flo
 
 
 def nb_razdioba(mu: np.ndarray, alpha: float):
-    """NB2: Var = μ + α μ². scipy nbinom(n, p) s n = 1/α, p = n / (n + μ)."""
+    """NB2: Var = μ + α μ². scipy nbinom(n, p) s n = 1/α, p = n / (n + μ).
+
+    Za α ≈ 0 (procjena na rubu ili Poissonov fallback) NB prelazi u Poissonovu razdiobu. scipy s n = 1/α → ∞ vraća NaN,
+    pa bi raspon bio [0, 0], a semafor "zasićeno" (greška pronađena 28.10. usporedbom s izračunom u pregledniku).
+    """
+    if not np.isfinite(alpha) or alpha < 1e-4:
+        return stats.poisson(mu)
     n = 1.0 / alpha
     return stats.nbinom(n, n / (n + mu))
 

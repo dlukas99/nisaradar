@@ -5,7 +5,7 @@ name: Deploy na GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ["web/**", "data/snapshot/**", "data/reference/**", "pipeline/export.py", "pipeline/nkd.py", ".github/workflows/pages.yml"]
+    paths: ["web/**", "data/snapshot/**", "data/reference/**", "pipeline/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
   workflow_call:
 

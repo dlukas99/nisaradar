@@ -29,11 +29,38 @@ export function nbPmf(k: number, mu: number, alpha: number): number {
 export function razdioba(mu: number, alpha: number, stvarno: number): number[] {
   const out: number[] = [];
   let kum = 0;
-  for (let k = 0; k < 2000; k++) {
+  // Gornja granica je samo osigurač; za Zagreb očekivanja idu u tisuće (ranije je granica 2000 odrezala razdiobu).
+  for (let k = 0; k < 200000; k++) {
     const p = nbPmf(k, mu, alpha);
     out.push(p);
     kum += p;
     if (kum > 0.995 && k >= stvarno && k >= 3) break;
   }
   return out;
+}
+
+// Semafor (D5) i 80 % raspon za zadani μ i α, izračunati u pregledniku. Koristi se za uži pogled po razredu (D15):
+// očekivanje razreda = očekivanje odjeljka × udio razreda; NB2 stanjivanjem zadržava isti α.
+export interface Ocjena {
+  interval: [number, number];
+  p_manje: number; // P(Y ≤ O)
+  p_vise: number; // P(Y ≥ O)
+  status: "nedostaje" | "ravnoteza" | "zasiceno";
+}
+
+export function ocijeni(mu: number, alpha: number, stvarno: number): Ocjena {
+  const p = razdioba(mu, alpha, stvarno);
+  let kum = 0;
+  let lo = -1, hi = -1, manje = 0;
+  for (let k = 0; k < p.length; k++) {
+    kum += p[k];
+    if (lo < 0 && kum >= 0.1) lo = k;
+    if (hi < 0 && kum >= 0.9) hi = k;
+    if (k === stvarno) manje = kum;
+  }
+  if (hi < 0) hi = p.length - 1;
+  if (stvarno >= p.length) manje = 1;
+  const vise = 1 - manje + (stvarno < p.length ? p[stvarno] : 0);
+  const status = manje < 0.1 ? "nedostaje" : vise < 0.1 ? "zasiceno" : "ravnoteza";
+  return { interval: [Math.max(lo, 0), hi], p_manje: manje, p_vise: vise, status };
 }

@@ -1,0 +1,119 @@
+kljuc,vrijednost,razred,opis
+shop,supermarket,47.11,supermarket
+shop,convenience,47.11,trgovina mješovitom robom
+shop,general,47.11,trgovina mješovitom robom
+shop,department_store,47.12,robna kuća
+shop,variety_store,47.12,trgovina raznom robom
+shop,greengrocer,47.21,voće i povrće
+shop,butcher,47.22,mesnica
+shop,seafood,47.23,ribarnica
+shop,bakery,47.24,pekarnica
+shop,pastry,47.24,slastičarnica (prodaja)
+shop,confectionery,47.24,slatkiši
+shop,alcohol,47.25,pića
+shop,beverages,47.25,pića
+shop,wine,47.25,vinoteka
+shop,tobacco,47.26,trafika
+shop,kiosk,47.26,kiosk
+shop,deli,47.27,delikatese
+shop,health_food,47.27,zdrava hrana
+shop,coffee,47.27,kava
+shop,mobile_phone,47.40,mobiteli
+shop,computer,47.40,računala
+shop,electronics,47.40,elektronika
+shop,fabric,47.51,tekstil
+shop,hardware,47.52,željezarija
+shop,doityourself,47.52,građevinski materijal
+shop,paint,47.52,boje i lakovi
+shop,trade,47.52,građevinski materijal
+shop,flooring,47.53,podne obloge
+shop,carpet,47.53,tepisi
+shop,tiles,47.53,pločice
+shop,appliance,47.54,kućanski aparati
+shop,furniture,47.55,namještaj
+shop,lighting,47.55,rasvjeta
+shop,houseware,47.55,kućanske potrepštine
+shop,books,47.61,knjižara
+shop,newsagent,47.62,novine
+shop,stationery,47.62,papirnica
+shop,sports,47.63,sportska oprema
+shop,toys,47.64,igračke
+shop,clothes,47.71,odjeća
+shop,boutique,47.71,butik
+shop,shoes,47.72,obuća
+shop,bag,47.72,torbe i kožna galanterija
+shop,chemist,47.75,drogerija
+shop,cosmetics,47.75,kozmetika
+shop,perfumery,47.75,parfumerija
+shop,optician,47.74,optika
+shop,medical_supply,47.74,medicinska pomagala
+shop,florist,47.76,cvjećarnica
+shop,garden_centre,47.76,vrtni centar
+shop,pet,47.76,kućni ljubimci
+shop,agrarian,47.76,poljoprivredna ljekarna
+shop,jewelry,47.77,nakit
+shop,watches,47.77,satovi
+shop,gift,47.78,darovi
+shop,second_hand,47.79,rabljena roba
+shop,charity,47.79,rabljena roba
+shop,car,47.81,auto salon
+shop,car_parts,47.82,auto dijelovi
+shop,tyres,47.82,gume
+shop,motorcycle,47.83,motocikli
+shop,bicycle,47.69,bicikli
+shop,hairdresser,96.21,frizer
+shop,beauty,96.22,kozmetički salon
+shop,massage,96.23,masaža
+shop,laundry,96.10,praonica
+shop,dry_cleaning,96.10,kemijska čistionica
+shop,funeral_directors,96.30,pogrebno poduzeće
+shop,travel_agency,79.11,putnička agencija
+amenity,pharmacy,47.73,ljekarna
+amenity,fuel,47.30,benzinska postaja
+amenity,restaurant,56.11,restoran
+amenity,fast_food,56.11,brza hrana
+amenity,cafe,56.30,kafić
+amenity,bar,56.30,bar
+amenity,pub,56.30,pivnica
+amenity,ice_cream,56.11,slastičarnica
+amenity,dentist,86.23,stomatolog
+amenity,doctors,86.21,liječnik
+amenity,veterinary,75.00,veterinar
+amenity,car_wash,96.99,autopraonica
+amenity,driving_school,85.53,autoškola
+amenity,car_rental,77.11,rent-a-car
+shop,car_repair,95.31,autoservis
+craft,car_repair,95.31,autoservis
+craft,hairdresser,96.21,frizer
+craft,shoemaker,95.23,postolar
+craft,tailor,14.29,krojač
+craft,electrician,43.21,električar
+craft,plumber,43.22,vodoinstalater
+craft,hvac,43.22,grijanje i klima
+craft,tiler,43.33,keramičar
+craft,painter,43.34,soboslikar
+craft,roofer,43.41,krovopokrivač
+craft,carpenter,16.23,stolar
+craft,joiner,16.23,stolar
+craft,locksmith,25.99,bravar
+craft,metal_construction,25.11,metalne konstrukcije
+craft,photographer,74.20,fotograf
+craft,watchmaker,95.25,urar
+craft,jeweller,32.12,zlatar
+craft,winery,11.02,vinarija
+craft,brewery,11.05,pivovara
+craft,bakery,10.71,pekara
+craft,confectionery,10.72,slastičarna (proizvodnja)
+tourism,hotel,55.10,hotel
+tourism,motel,55.10,motel
+tourism,hostel,55.20,hostel
+tourism,guest_house,55.20,pansion / sobe
+tourism,apartment,55.20,apartman
+tourism,camp_site,55.30,kamp
+office,accountant,69.20,računovodstvo
+office,lawyer,69.10,odvjetnik
+office,estate_agent,68.31,agencija za nekretnine
+office,insurance,66.22,osiguranje
+office,architect,71.11,arhitekt
+office,travel_agent,79.11,putnička agencija
+healthcare,physiotherapist,86.95,fizioterapeut

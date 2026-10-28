@@ -63,6 +63,17 @@ Sudski registar se dohvaća ponovno svake noći, a ostale referentne tablice jed
 - **Poveznica:** https://data.gov.hr/ckan/api/3/action/package_show
 - **Koristimo:** `metadata_modified` svakog skupa, uživo na stranici "Izvori i ažurnost" (JSONP) i pri svakom noćnom izvođenju
 
+## 7. OpenStreetMap – lokali (D16)
+
+- **Izdavač:** OpenStreetMap zajednica (preko Overpass API-ja)
+- **Poveznica:** https://www.openstreetmap.org/copyright
+- **Licenca:** Open Database License (ODbL) 1.0, © OpenStreetMap contributors. Naš zbirni skup
+  `data/reference/osm_jls_razred.csv` (broj lokala po JLS × razred NKD 2025) je izvedena baza i dijeli se pod ODbL.
+- **Dohvat:** 28.10.2026. (`data/reference/osm_meta.json`)
+- **Koristimo:** trgovine, ugostiteljstvo, usluge i obrtničke radionice (oznake `shop`, `amenity`, `craft`, `tourism`, `office`,
+  `healthcare`), raspoređene u JLS po granicama DGU-a. Prikazuje se kao informacija uz model (uključuje obrte i poslovnice), ne kao ulaz u model.
+- **Skripta:** `pipeline/osm.py`; mapiranje oznaka na razrede `data/reference/osm_nkd.csv` (ručno, šifre provjerene prema NKD 2025)
+
 ## Ručno izrađeni podaci
 
 - `data/reference/sinonimi.csv`: sinonimi za pretragu ideja (npr. "frizer" → 96.21), izradio tim. Šifre su provjerene prema NKD 2025.

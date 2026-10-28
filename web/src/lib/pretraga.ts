@@ -40,13 +40,21 @@ const OBLIK = new Set("obrt obrta firma firmu firme tvrtka tvrtku tvrtke posao p
 // Lagani "stemmer" za hrvatski: skida česte nastavke da se "knjigovodstveni", "knjigovodstvo" i "knjigovodstva"
 // svedu na isti korijen. Nije lingvistički potpun, ali uklanja većinu promašaja zbog padeža i pridjeva.
 const NASTAVCI = [
-  "ovima", "evima", "skih", "ckih", "skog", "skom", "skoj", "nih", "nog", "nom", "noj",
-  "ske", "ski", "ska", "sko", "cke", "cki", "cka", "cko", "ima", "ama", "ih", "og", "om", "oj", "im", "em",
+  "ovima", "evima", "ova", "ove", "ovi", "skih", "skog", "skom", "skoj", "nih", "nog", "nom", "noj",
+  "ske", "ski", "ska", "sko", "ima", "ama", "ih", "og", "om", "oj", "im", "em",
   "ni", "na", "no", "ne", "a", "e", "i", "o", "u",
 ];
+// Pridjevi na -čki nastaju od imenica na -ka (keramika -> keramički, tehnika -> tehnički): svodimo ih na isti korijen
+// ("keramick" -> "keramik"), inače "keramiku" u upitu ne nalazi "keramičke pločice" u službenom opisu.
+const NASTAVCI_CK = ["ckih", "ckog", "ckom", "ckoj", "cke", "cki", "cka", "cko"];
 export function korijen(w: string): string {
+  // Kratke imenice (koza/koze/kozu, riba, vino) smiju se skratiti na 3 slova; duže riječi zadržavaju barem 4.
+  const min = w.length <= 5 ? 3 : 4;
+  for (const n of NASTAVCI_CK) {
+    if (w.endsWith(n) && w.length - n.length >= 4) return w.slice(0, -n.length) + "k";
+  }
   for (const n of NASTAVCI) {
-    if (w.endsWith(n) && w.length - n.length >= 4) return w.slice(0, -n.length);
+    if (w.endsWith(n) && w.length - n.length >= min) return w.slice(0, -n.length);
   }
   return w;
 }
@@ -67,16 +75,17 @@ const PRERADIVACKA = Array.from({ length: 24 }, (_, i) => String(10 + i));
 const VRSTA: [RegExp, string[]][] = [
   [/^(projekt|projektira|projektant|nadzor|inzenjer|geodet)/, ["71"]],
   [/^(dizajn|dizajner)/, ["74", "71"]],
-  [/^(ugradnj|ugrad|montaz|postavljanj|instalac|instalater|izvodjenj)/, ["43", "42", "33"]],
-  [/^(gradnj|gradev|zidar|asfalt)/, ["41", "42", "43"]],
+  [/^(ugradnj|ugrad|montaz|montir|postavlj|postav|polag|lijep|instalac|instalater|izvodjenj)/, ["43", "42", "33"]],
+  [/^(bojanj|bojat|licenj|licit|soboslik|fasad|keramicar|parket)/, ["43"]],
+  [/^(gradnj|gradev|gradit|zidar|asfalt)/, ["41", "42", "43"]],
   [/^(proizvodnj|proizvod|izrad|izradi)/, PRERADIVACKA],
   // "Prodaja" u razgovoru znači trgovinu na malo; na veliko se kaže "veleprodaja" ili "na veliko".
   [/^(prodaj|prodava|trgovin|ducan|shop|webshop)/, ["47"]],
   [/^(veleprodaj|velik|veletrgovin|distribuc|uvoz|izvoz)/, ["46"]],
-  [/^(popravak|popravk|servis|odrzavanj|serviser|restaurac)/, ["95", "33", "81"]],
+  [/^(popravak|popravk|popravlj|servis|odrzavanj|odrzavat|serviser|restaurac)/, ["95", "33", "81"]],
   [/^(iznajmljivanj|najam|rent)/, ["77", "68", "55"]],
   [/^(prijevoz|prevoz|dostav|transport)/, ["49", "53", "50", "51"]],
-  [/^(uzgoj|uzgajanj|sadnj)/, ["01", "02", "03"]],
+  [/^(uzgoj|uzgaj|sadnj|sadit)/, ["01", "02", "03"]],
   [/^(ordinac|lijecnik|doktor|terapeut)/, ["86", "75"]],
   [/^(skol|tecaj|instrukc|poducavanj|edukac)/, ["85"]],
 ];
@@ -89,7 +98,10 @@ const PROSIRENJA: Record<string, string[]> = {
   montaz: ["ugradnj", "postavljanj"],
   servis: ["popravak", "odrzavanj"],
   najam: ["iznajmljivanj"],
+  aut: ["automobil", "motorn", "vozil"],
   auto: ["automobil", "motorn", "vozil"],
+  bojanj: ["bojenj", "soboslikarsk"],
+  licenj: ["bojenj", "soboslikarsk"],
   automobil: ["motorn", "vozil"],
   kompjuter: ["racunal"],
   mobitel: ["telefon", "komunikacijsk"],

@@ -141,6 +141,7 @@ export function Izvori({ d }: { d: Osnovno }) {
         <h2>Ograničenja (iskreno)</h2>
         <ul>
           <li><strong>Obrti nisu uključeni.</strong> Nisu u Sudskom registru, a otvoreni podaci o obrtima po djelatnosti i JLS-u ne postoje. Odjeljci u kojima prevladavaju obrti ({m.odjeljci_obrti.join(", ")}) imaju oznaku „niža pouzdanost”.</li>
+          <li><strong>Tvrtke se broje u mjestu sjedišta.</strong> Poslovnice trgovačkih lanaca, banaka ili benzinskih postaja sa sjedištem drugdje ne vide se. Zato rezultat uz model prikazuje i broj lokala na karti OpenStreetMap, koja bilježi i obrte i poslovnice, ali nije potpuna (© OpenStreetMap contributors, ODbL).</li>
           <li><strong>Šifra djelatnosti.</strong> {postotak(1 - o.subjekata_s_odjeljkom / o.subjekata_u_obuhvatu)} tvrtki nema nijednu šifru djelatnosti, pa nisu u izračunu. JLS-ovi s neuobičajeno velikim udjelom takvih tvrtki (iznad {postotak(o.prag_bez_sifre)}) imaju oznaku „niža pouzdanost”.</li>
           <li><strong>Dva izvora djelatnosti.</strong> Pretežita i glavna djelatnost slažu se u {postotak(s.slaganje_izvora)} tvrtki koje imaju obje. Zato svaki nalaz provjeravamo i modelom samo na pretežitoj djelatnosti. Semafor je isti u {postotak(s.isti_status)} slučajeva, a rezultat pokazuje je li nalaz potvrđen.</li>
           <li><strong>Što model mjeri.</strong> Model pokazuje gdje je broj tvrtki neobičan za ovakav grad ili općinu, a ne izravnu potražnju. Mala očekivanja (npr. 0–2 tvrtke) gotovo nikad ne daju „nedostaje”, jer ni nula nije neobična.</li>

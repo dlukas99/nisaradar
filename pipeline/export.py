@@ -63,7 +63,15 @@ IZVORI = [
     {"naziv": "Upravne jedinice – INSPIRE (Registar prostornih jedinica)", "izdavac": "Državna geodetska uprava",
      "url": "https://geoportal.dgu.hr/services/atom/au/xml", "ckan": "upravne-jedinice-inspire",
      "licenca": "Otvorena dozvola RH", "koristimo": "granice gradova i općina"},
+    {"naziv": "OpenStreetMap – lokali (trgovine, ugostiteljstvo, usluge)", "izdavac": "OpenStreetMap zajednica",
+     "url": "https://www.openstreetmap.org/copyright", "ckan": None,
+     "licenca": "ODbL 1.0 (© OpenStreetMap contributors)",
+     "koristimo": "broj lokala na karti po JLS-u i razredu, kao drugi pogled uz Sudski registar (uključuje obrte i poslovnice)"},
 ]
+
+
+# Najmanji broj subjekata razreda u RH za uži pogled po razredu (kao MIN_SUBJEKATA_RH za odjeljke u model.py).
+MIN_RAZRED = 50
 
 
 def _broj(x, znamenki=2):
@@ -152,19 +160,30 @@ def main() -> int:
         })
     pisi(WEB / "odjeljci.json", odj_out)
 
-    # --- razredi.json (za pretragu; broj subjekata u RH po razredu iz pretežite djelatnosti)
+    # --- razredi.json (za pretragu i uži pogled po razredu, D15)
+    # udio = udio razreda u njegovu odjeljku u RH. Očekivanje razreda u JLS-u = očekivanje odjeljka × udio
+    # (stanjivanje negativne binomne razdiobe zadržava isti α). Računa se samo za razrede s barem 50 subjekata u RH.
     sin = ucitaj_sinonime()
     raz_rh = raz.groupby("razred").broj.sum()
+    odj_rh = raz.assign(odjeljak=raz.razred.str[:2]).groupby("odjeljak").broj.sum()
+    modelirani = {o["odjeljak"] for o in odj_out if o["modeliran"]}
     poznati = {o["odjeljak"] for o in odj_out}
     pisi(WEB / "razredi.json", [{
         "razred": r.razred, "naziv": r.naziv, "odjeljak": r.odjeljak, "sinonimi": sin.get(r.razred, ""),
         "broj_rh": int(raz_rh.get(r.razred, 0)),
+        "udio": (_broj(raz_rh.get(r.razred, 0) / odj_rh[r.odjeljak], 5)
+                 if r.odjeljak in modelirani and raz_rh.get(r.razred, 0) >= MIN_RAZRED else None),
     } for r in raz_t.itertuples() if r.odjeljak in poznati])
     # Službeni opisi razreda (DZS publikacija NKD 2025) za pretragu iz teksta, D7.
     nkd_opisi.zapisi_json(WEB / "nkd_opisi.json")
 
     # --- deficit/<jls>.json
     raz_po_jls = {s: dict(zip(g.razred, g.broj.astype(int))) for s, g in raz.groupby("sifra_opcine")}
+    # D16: lokali s OpenStreetMap karte po razredu (ako je pipeline/osm.py pokrenut).
+    osm_po_jls: dict[int, dict[str, int]] = {}
+    if (REF / "osm_jls_razred.csv").exists():
+        osm = pd.read_csv(REF / "osm_jls_razred.csv", dtype={"razred": str})
+        osm_po_jls = {int(s): dict(zip(g.razred, g.broj.astype(int))) for s, g in osm.groupby("sifra_opcine")}
     for s, g in pred.groupby("sifra_opcine"):
         pisi(WEB / "deficit" / f"{s}.json", {
             "sifra": int(s),
@@ -175,6 +194,7 @@ def main() -> int:
                 "status": r.status, "status_uzi": None if pd.isna(r.status_pretezita) else r.status_pretezita,
             } for r in g.itertuples()],
             "razredi": {k: int(v) for k, v in raz_po_jls.get(s, {}).items()},
+            "osm": osm_po_jls.get(int(s), {}),
         })
 
     # --- odjeljak/<odj>.json
@@ -208,6 +228,10 @@ def main() -> int:
         "osjetljivost": {k: _broj(v, 4) if isinstance(v, float) else v for k, v in ev["osjetljivost"].items()},
         "pragovi": {"nedostaje": 0.10, "zasiceno": 0.10, "interval": 0.80},
         "odjeljci_obrti": sorted(ODJELJCI_OBRTI),
+        "osm": ({**json.loads((REF / "osm_meta.json").read_text(encoding="utf-8")),
+                 # razredi za koje karta uopće ima oznaku (za ostale "0 na karti" ne znači ništa)
+                 "razredi": sorted(pd.read_csv(REF / "osm_nkd.csv", dtype=str).razred.unique().tolist())}
+                if (REF / "osm_meta.json").exists() else None),
         "izvori": ckan_azurnost(IZVORI),
         "izvori_provjereno": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     })

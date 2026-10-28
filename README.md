@@ -38,8 +38,9 @@ Za svaki rezultat daje i gotov **tržišni odlomak s izvorima** za poslovni plan
 | NKD 2025. s tablicom veza NKD 2007. – NKD 2025. | DZS | nazivi djelatnosti i službeno mapiranje verzija |
 | Upravne jedinice – INSPIRE (Registar prostornih jedinica) | DGU | granice JLS-a za kartu |
 | data.gov.hr CKAN API | MPUDT | datumi ažuriranja skupova (uživo) |
+| OpenStreetMap (Overpass API, ODbL) | OpenStreetMap zajednica | broj lokala na karti po JLS-u i razredu, uključuje obrte i poslovnice |
 
-Svih pet izvora spaja se po **šifri JLS-a**. Sudregov `sifra_opcine` je ista DGU šifra kao `nationalCode` u INSPIRE
+Izvori se spajaju po **šifri JLS-a** (lokali s OpenStreetMapa po granicama DGU-a). Sudregov `sifra_opcine` je ista DGU šifra kao `nationalCode` u INSPIRE
 granicama (poklapa se svih 556). Popis i indeks spajaju se po nazivu i županiji, uz dvije ručno provjerene razlike u
 pisanju. Detalji, poveznice i licence su u [DATA_SOURCES.md](DATA_SOURCES.md).
 
@@ -56,7 +57,7 @@ GroupKFold po županijama: model svaki put predviđa jednu županiju koju nije v
 Model je bolji od baselinea u 63 od 71 modeliranih odjeljaka. Izazivač (gradient boosting) nije bio bolji.
 
 Prijedlog djelatnosti iz teksta: na 42 nova opisa ideja, napisana prije izrade sadašnje pretrage, točan razred je među
-prva tri prijedloga u 90,5 % slučajeva (top-1 66,7 %; prva inačica imala je 59,5 % i 42,9 %). Detalji i napomena o
+prva tri prijedloga u 92,9 % slučajeva (top-1 69,0 %; prva inačica imala je 59,5 % i 42,9 %). Detalji i napomena o
 pristranosti su u [docs/evaluacija_pretrage.md](docs/evaluacija_pretrage.md).
 
 ## Arhitektura
@@ -96,8 +97,11 @@ Referentne tablice (`data/reference/`) su u gitu. Ponovno se grade skriptama `pi
 
 ## Ograničenja
 
-- **Obrti nisu uključeni**: nisu u Sudskom registru, a otvoreni agregat po djelatnosti i JLS-u ne postoji.
-  Odjeljci u kojima prevladavaju obrti (01, 43, 56, 95, 96) imaju oznaku "niža pouzdanost".
+- **Obrti nisu u modelu**: nisu u Sudskom registru, a otvoreni agregat po djelatnosti i JLS-u ne postoji (Obrtni registar nema
+  otvoreni skup ni API). Model zato uspoređuje tvrtke s tvrtkama. Odjeljci u kojima prevladavaju obrti (01, 43, 56, 95, 96)
+  imaju oznaku "niža pouzdanost".
+- **Tvrtke se broje u mjestu sjedišta**, pa se poslovnice lanaca ne vide. Kao drugi pogled rezultat prikazuje broj lokala na
+  karti OpenStreetMap, koja bilježi i obrte i poslovnice, ali nije potpuna.
 - Oko 24 % tržišnih subjekata nema nijednu šifru djelatnosti, pa nisu u izračunu. JLS-ovi s neuobičajeno velikim udjelom
   takvih subjekata imaju oznaku "niža pouzdanost".
 - Dva izvora djelatnosti u Sudskom registru (pretežita i glavna) slažu se u 73 % slučajeva. Zato svaki nalaz
