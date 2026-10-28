@@ -117,7 +117,15 @@ benzinske postaje). Primjer: Općina Čaglin ima 12 tvrtki, nijednu u trgovini, 
 U cijeloj RH registar u razredu 47.11 (dućani i supermarketi) ima 731 tvrtku, a karta 4.779 takvih lokala.
 
 Zato rezultat prikazuje i broj lokala iste vrste na karti OpenStreetMap (ODbL). Karta bilježi lokale bez obzira na pravni
-oblik, ali je nepotpuna i neravnomjerno ucrtana, pa nije ulaz u model nego informacija uz njega.
+oblik, ali je nepotpuna i neravnomjerno ucrtana (gradovi i obala gušće), pa nije ulaz u model nego informacija uz njega.
+
+Uz broj na karti prikazuje se usporedba: koliko bi lokala bilo kad bi JLS imao gustoću lokala na karti kao ostali gradovi
+(odnosno općine) u istoj županiji. Provjera po županijama (35 razreda s barem 200 lokala) pokazala je da je ta jednostavna
+stopa bolja (devijanca 2,53) od stope RH (3,09) i od negativne binomne regresije s obilježjima JLS-a (3,62). Budući da model
+ne pobjeđuje jednostavnu stopu, za lokale s karte ne prikazujemo semafor.
+
+Podružnice iz Sudskog registra ne rješavaju problem poslovnica: u cijeloj RH upisano ih je samo 3.645, jer trgovački lanci
+prodavaonice ne upisuju kao podružnice.
 
 - Obrti nisu u Sudskom registru (D3). Ako je udio obrta po regijama sličan, relativni deficit ostaje valjan.
   Za odjeljke u kojima prevladavaju obrti (01, 43, 56, 95, 96) prikazuje se oznaka "niža pouzdanost".

@@ -56,6 +56,8 @@ export interface Deficit {
   razredi: Record<string, number>;
   /** Lokali na OpenStreetMap karti po razredu (D16). */
   osm: Record<string, number>;
+  /** Koliko bi lokala na karti bilo da je JLS ucrtan kao ostali gradovi/općine u županiji (D16). */
+  osm_usporedba: Record<string, number>;
 }
 
 export interface OdjeljakJls {
@@ -118,7 +120,12 @@ export interface Meta {
     subjekata_pretezita: number;
   };
   odjeljci_obrti: string[];
-  osm: { dohvaceno: string; licenca: string; objekata: number; razredi: string[] } | null;
+  osm: {
+    dohvaceno: string;
+    licenca: string;
+    objekata: number;
+    razredi: string[];
+  } | null;
   izvori: Izvor[];
   izvori_provjereno: string;
 }

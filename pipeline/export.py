@@ -118,6 +118,30 @@ def ucitaj_sinonime() -> dict[str, str]:
     return s.groupby("razred").sinonimi.apply(lambda x: ", ".join(x)).to_dict()
 
 
+def osm_usporedba(osm: pd.DataFrame, jls: pd.DataFrame) -> dict[int, dict[str, float]]:
+    """D16: koliko bi lokala na karti imao JLS da je ucrtan kao ostali JLS-ovi iste vrste (grad/općina) u njegovoj županiji.
+
+    Karta je neravnomjerno ucrtana (gradovi i obala gušće), pa usporedba s prosjekom RH vara. Provjera 28.10. na 35 razreda
+    s barem 200 lokala: devijanca stope ostatka županije za isti tip JLS-a 2,53, ostatka županije 2,60, stope RH 3,09,
+    a NegBin modela s obilježjima 3,62. Zato prikazujemo ovu jednostavnu usporedbu, a ne semafor.
+    """
+    puna = pd.MultiIndex.from_product([jls.sifra_opcine, sorted(osm.razred.unique())], names=["sifra_opcine", "razred"])
+    d = (osm.set_index(["sifra_opcine", "razred"]).broj.reindex(puna, fill_value=0).reset_index()
+         .merge(jls[["sifra_opcine", "sifra_zupanije", "grad", "stanovnika"]], on="sifra_opcine"))
+
+    def loo(kljuc: list[str]) -> tuple[pd.Series, pd.Series]:
+        g = d.groupby(kljuc)
+        return g.broj.transform("sum") - d.broj, g.stanovnika.transform("sum") - d.stanovnika
+
+    b1, p1 = loo(["sifra_zupanije", "razred", "grad"])     # ostali JLS-ovi iste vrste u županiji
+    b2, p2 = loo(["sifra_zupanije", "razred"])             # svi ostali JLS-ovi u županiji
+    b3, p3 = loo(["razred"])                               # ostatak RH (Grad Zagreb je sam u županiji)
+    stopa = ((b1 / p1).where(p1 > 0, (b2 / p2).where(p2 > 0, b3 / p3)))
+    d["usporedba"] = (stopa * d.stanovnika).round(2)
+    d = d[d.usporedba >= 0.05]
+    return {int(s): dict(zip(g.razred, g.usporedba.astype(float))) for s, g in d.groupby("sifra_opcine")}
+
+
 def main() -> int:
     jls = pd.read_csv(REF / "jls.csv")
     pok = pd.read_parquet(SNAP / "jls_pokrivenost.parquet")
@@ -181,9 +205,11 @@ def main() -> int:
     raz_po_jls = {s: dict(zip(g.razred, g.broj.astype(int))) for s, g in raz.groupby("sifra_opcine")}
     # D16: lokali s OpenStreetMap karte po razredu (ako je pipeline/osm.py pokrenut).
     osm_po_jls: dict[int, dict[str, int]] = {}
+    osm_usp_po_jls: dict[int, dict[str, float]] = {}
     if (REF / "osm_jls_razred.csv").exists():
         osm = pd.read_csv(REF / "osm_jls_razred.csv", dtype={"razred": str})
         osm_po_jls = {int(s): dict(zip(g.razred, g.broj.astype(int))) for s, g in osm.groupby("sifra_opcine")}
+        osm_usp_po_jls = osm_usporedba(osm, jls)
     for s, g in pred.groupby("sifra_opcine"):
         pisi(WEB / "deficit" / f"{s}.json", {
             "sifra": int(s),
@@ -195,6 +221,7 @@ def main() -> int:
             } for r in g.itertuples()],
             "razredi": {k: int(v) for k, v in raz_po_jls.get(s, {}).items()},
             "osm": osm_po_jls.get(int(s), {}),
+            "osm_usporedba": osm_usp_po_jls.get(int(s), {}),
         })
 
     # --- odjeljak/<odj>.json

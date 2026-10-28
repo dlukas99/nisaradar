@@ -63,3 +63,8 @@ export function normaliziraj(s: string): string {
     .replace(/[̀-ͯ]/g, "")
     .replace(/đ/g, "d");
 }
+
+// Nazivi županija su pridjevi ("Osječko-baranjska"), a Grad Zagreb je iznimka: padeži za rečenice u tekstu.
+export const zupanijaNom = (z: string) => (z === "Grad Zagreb" ? z : `${z} županija`);
+export const zupanijaGen = (z: string) => (z === "Grad Zagreb" ? "Grada Zagreba" : `${z.replace(/a$/, "e")} županije`);
+export const zupanijaLok = (z: string) => (z === "Grad Zagreb" ? "Gradu Zagrebu" : `${z.replace(/a$/, "oj")} županiji`);

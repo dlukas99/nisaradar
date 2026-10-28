@@ -1,5 +1,5 @@
 import type { Celija, Jls, Meta, Odjeljak, Razred, Status } from "./data";
-import { datum, fmt, fmt1, jlsVrsta, subjekata } from "./format";
+import { datum, fmt, fmt1, jlsVrsta, subjekata, zupanijaGen, zupanijaLok, zupanijaNom } from "./format";
 
 // D8: tržišni odlomak je deterministički predložak. Svaka brojka dolazi iz podataka i ima izvor; nema LLM-a.
 
@@ -22,6 +22,8 @@ export interface OdlomakUlaz {
   brojURazredu?: number;
   /** Lokali na OpenStreetMap karti (D16); undefined ako karta nema oznaku za ovu vrstu djelatnosti. */
   osm?: number;
+  /** Usporedba na karti: stanovnici × stopa lokala na karti u ostalim gradovima/općinama iste županije (D16). */
+  osmProsjek?: number;
   meta: Meta;
   stopaZupanija: number; // subjekata odjeljka na 10.000 stanovnika u županiji
   stopaRh: number; // subjekata odjeljka na 10.000 stanovnika u RH
@@ -43,7 +45,7 @@ export function tekstOdlomka(u: OdlomakUlaz): string {
   const dijelovi: string[] = [];
   const uvod =
     `Prema podacima Sudskog registra (stanje ${datum(meta.snapshot_vrijeme)}, snapshot ${meta.snapshot_id}), ` +
-    `u ${mjesto} (${jls.zupanija} županija; ${fmt(jls.stanovnika)} stanovnika prema Popisu 2021.) `;
+    `u ${mjesto} (${zupanijaNom(jls.zupanija)}; ${fmt(jls.stanovnika)} stanovnika prema Popisu 2021.) `;
   const struktura =
     `${jls.grad ? "grad" : "općinu"} ove veličine, dobne strukture (${fmt1(jls.udio_65 * 100)} % stanovnika starijih od 65 godina) ` +
     `i razvijenosti (indeks razvijenosti ${fmt1(jls.indeks_razvijenosti)}, ${jls.skupina_razvijenosti}. razvojna skupina)`;
@@ -85,13 +87,16 @@ export function tekstOdlomka(u: OdlomakUlaz): string {
 
   dijelovi.push(
     `Na 10.000 stanovnika to je ${fmt1(na10k(celija.broj, jls.stanovnika))} subjekata u odjeljku ${odjeljak.odjeljak}, ` +
-      `prema ${fmt1(u.stopaZupanija)} u ${jls.zupanija} županiji i ${fmt1(u.stopaRh)} u Republici Hrvatskoj.`,
+      `prema ${fmt1(u.stopaZupanija)} u ${zupanijaLok(jls.zupanija)} i ${fmt1(u.stopaRh)} u Republici Hrvatskoj.`,
   );
 
   if (u.osm !== undefined) {
     dijelovi.push(
-      `Broj lokala ove vrste ucrtanih na karti OpenStreetMap u ${mjesto}: ${u.osm}. Taj broj uključuje i obrte i poslovnice ` +
-        `tvrtki sa sjedištem drugdje, ali karta nije potpuna.`,
+      `Broj lokala ove vrste ucrtanih na karti OpenStreetMap u ${mjesto}: ${u.osm}` +
+        (u.osmProsjek !== undefined
+          ? ` (uz gustoću kao u ostalim ${jls.grad ? "gradovima" : "općinama"} ${zupanijaGen(jls.zupanija)} bilo bi ih oko ${fmt1(u.osmProsjek)})`
+          : "") +
+        `. Taj broj uključuje i obrte i prodavaonice tvrtki sa sjedištem drugdje, ali karta nije potpuna.`,
     );
   }
 

@@ -3,7 +3,7 @@ import { Razdioba } from "../components/Razdioba";
 import { StatusOznaka } from "../components/StatusOznaka";
 import type { Deficit, Osnovno, OdjeljakDatoteka } from "../lib/data";
 import { dohvati } from "../lib/data";
-import { STATUS, fmt, fmt1, jlsVrsta, postotak, subjekata } from "../lib/format";
+import { STATUS, fmt, fmt1, jlsVrsta, postotak, subjekata, zupanijaLok, zupanijaNom } from "../lib/format";
 import { na10k, tekstOdlomka, type UziPogled } from "../lib/odlomak";
 import type { Opisi } from "../lib/pretraga";
 import { ocijeni } from "../lib/stat";
@@ -48,13 +48,16 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
   }, [razred, def, celija, odjeljak]);
 
   // D16: lokali na OpenStreetMap karti; undefined ako karta za ovu vrstu djelatnosti nema oznaku.
-  const osm = useMemo(() => {
-    if (!def || !d.meta.osm) return undefined;
-    const mapirani = new Set(d.meta.osm.razredi);
-    if (razred) return mapirani.has(razred.razred) ? def.osm[razred.razred] ?? 0 : undefined;
-    const uOdjeljku = [...mapirani].filter((r) => r.startsWith(odj + "."));
-    return uOdjeljku.length ? uOdjeljku.reduce((zbroj, r) => zbroj + (def.osm[r] ?? 0), 0) : undefined;
-  }, [def, d.meta.osm, razred, odj]);
+  // Usporedba na karti = stanovnici × stopa lokala na karti u ostalim gradovima (ili općinama) iste županije. Karta je
+  // neravnomjerno ucrtana, a model na OSM brojevima nije bio bolji od te jednostavne stope (D16), pa nema semafora.
+  const osmRazredi = useMemo(() => {
+    if (!d.meta.osm) return [];
+    const mapirani = d.meta.osm.razredi;
+    if (razred) return mapirani.includes(razred.razred) ? [razred.razred] : [];
+    return mapirani.filter((r) => r.startsWith(odj + "."));
+  }, [d.meta.osm, razred, odj]);
+  const osm = def && osmRazredi.length ? osmRazredi.reduce((z, r) => z + (def.osm[r] ?? 0), 0) : undefined;
+  const osmProsjek = def && osmRazredi.length ? osmRazredi.reduce((z, r) => z + (def.osm_usporedba[r] ?? 0), 0) : undefined;
 
   const stope = useMemo(() => {
     if (!odjDat || !jls) return null;
@@ -100,7 +103,7 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
     : { status: celija.status, broj: celija.broj, ocekivano: celija.ocekivano, interval: celija.interval };
   const st = STATUS[g.status];
   const odlomak = tekstOdlomka({
-    jls, odjeljak, celija, uze, osm,
+    jls, odjeljak, celija, uze, osm, osmProsjek,
     razred: uze ? undefined : razred, brojURazredu: !uze && razred ? def.razredi[razred.razred] ?? 0 : undefined,
     meta: d.meta, stopaZupanija: stope.zupanija, stopaRh: stope.rh,
   });
@@ -123,7 +126,7 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
         ) : (
           <>NKD 2025. odjeljak {odjeljak.odjeljak} ({odjeljak.podrucje_naziv})</>
         )}{" "}
-        · {jlsVrsta(jls.grad)} {jls.naziv}, {jls.zupanija} županija
+        · {jlsVrsta(jls.grad)} {jls.naziv}, {zupanijaNom(jls.zupanija)}
       </p>
 
       <div className="card">
@@ -276,6 +279,13 @@ export function Rezultat({ d, sifra, odj, razredKod }: { d: Osnovno; sifra: numb
             <div className="osm-broj">{osm}</div>
             <div>
               <strong>broj lokala ove vrste na karti OpenStreetMap u {uOvom} {jls.naziv}</strong>
+              {osmProsjek !== undefined && (
+                <p style={{ margin: "4px 0 0" }}>
+                  Kad bi {jls.grad ? "grad imao" : "općina imala"} onoliko lokala po stanovniku koliko ih na karti imaju{" "}
+                  {jls.grad ? "ostali gradovi" : "ostale općine"} u {zupanijaLok(jls.zupanija)}, bilo bi ih oko <strong>{fmt1(osmProsjek)}</strong>. Ovi brojevi uključuju i obrte i
+                  prodavaonice lanaca, pa bolje opisuju konkurenciju na terenu.
+                </p>
+              )}
               <p className="small muted" style={{ margin: "4px 0 0" }}>
                 Karta bilježi stvarne lokale na terenu, uključujući obrte i poslovnice lanaca, ali je nepotpuna (ucrtavaju je
                 volonteri), osobito u manjim mjestima. Broj je zato donja granica, a ne točan popis. Usporedite ga sa

@@ -246,6 +246,12 @@ Ako se šifre ne slažu, spajaj po normaliziranom nazivu JLS-a i županiji te ru
     prema 731 tvrtki u registru.
   - Prikazuje se kao **informacija uz model, ne ulaz u model**: karta je nepotpuna i neravnomjerno ucrtana (Beli Manastir: 1 frizer na karti).
   - `pipeline/osm.py` (Overpass, jednom/ručno, ne noćno) + ručno mapiranje `data/reference/osm_nkd.csv` (oko 120 oznaka, šifre provjerene).
+  - **Provjera modela na OSM brojevima (28.10., GroupKFold po županijama, 35 razreda s ≥ 200 lokala):** NegBin GLM s obilježjima
+    devijanca 3,62, stopa RH × stanovnici 3,09, stopa ostatka županije 2,60, **stopa ostalih JLS-ova iste vrste (grad/općina) u županiji 2,53**.
+    Model ne pobjeđuje jednostavne stope (D4), pa za kartu **nema semafora**. UI prikazuje broj na karti i usporedbu
+    "koliko bi ih bilo uz gustoću ostalih gradova/općina u županiji" (`osm_usporedba` u `deficit/<jls>.json`).
+  - Podružnice u Sudskom registru (`/sjedista_podruznica`) ne rješavaju poslovnice lanaca: u cijeloj RH ih je samo 3.645
+    (lanci prodavaonice ne upisuju kao podružnice). Ne koriste se.
 
 ## 5. Arhitektura (MVP bez poslužitelja)
 
