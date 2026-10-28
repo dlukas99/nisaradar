@@ -75,15 +75,25 @@ Za diskretne brojeve je pravilo konzervativno. Kad je očekivanje malo (npr. μ 
 
 ## 6. Prijedlog djelatnosti iz teksta (D7)
 
-Fuse.js fuzzy pretraga nad službenim nazivima 651 razreda NKD 2025, nazivima odjeljaka i ručnim sinonimima
-(`data/reference/sinonimi.csv`, oko 100 razreda najčešćih ideja za samozapošljavanje).
+Pretraga nad **službenim opisima razreda iz DZS publikacije NKD 2025** (`pipeline/nkd_opisi.py`, 6.193 opisa za 646 od 651
+razreda): nazivi razreda i podrazreda, stavke "Ovaj podrazred uključuje" i upute iz tuđih "isključuje ..., vidi XX.XX"
+(npr. "ugradnju solarnih panela, vidi 43.21.0" pripisuje se razredu 43.21). Uz to idu ručni sinonimi za razgovorne riječi
+(`data/reference/sinonimi.csv`, oko 100 razreda).
 
 - Tekst se normalizira (bez dijakritika), uklanjaju se riječi bez značenja ("želim otvoriti mali ...") i skidaju česti
   hrvatski nastavci ("knjigovodstveni" ≈ "knjigovodstvo").
-- Svaka riječ traži se zasebno, a bodovi se zbrajaju. Generičke riječi ("servis", "ured", "radionica") imaju manju težinu.
-- Prikazuju se samo prijedlozi blizu najboljeg.
-- Evaluacija na 104 ručno označena opisa: top-1 90,4 %, top-3 97,1 % (prvo mjerenje izvan uzorka: 87,5 % i 89,4 %).
-  Detalji su u [evaluacija_pretrage.md](evaluacija_pretrage.md).
+- Riječ upita mora postojati u opisu (isti korijen). Približno podudaranje slova (najviše 1–2 slova razlike) koristi se samo
+  za riječi kojih nema u rječniku opisa, tj. za tipfelere. Prva inačica (Fuse.js, sličnost slova) je zato predlagala
+  "stolariju" za "solarne panele".
+- Rijetke riječi vrijede više (IDF). Bodovi su pola zbroj najboljih podudaranja po riječi, a pola najbolji pojedinačni opis,
+  pa se nagrađuju riječi koje se u službenom opisu pojavljuju zajedno.
+- Riječ koja označava vrstu posla (projektiranje, ugradnja, proizvodnja, prodaja, popravak, najam, prijevoz, uzgoj...) daje
+  prednost odgovarajućim odjeljcima. Generičke riječi ("servis", "ured", "salon") imaju manju težinu.
+- Najbolji prijedlog se odabire sam, a uz svaki prijedlog prikazuje se službeni tekst zbog kojeg je predložen. Ako alat ne
+  prepozna većinu riječi opisa (pokrivenost < 0,3), kaže da nije siguran i ne odabire ništa sam. Pokrivenost nije mjera
+  točnosti: na testnim skupovima jednako je visoka kod točnih i netočnih prijedloga.
+- Evaluacija na 42 nova opisa (napisana prije izrade ove pretrage): top-1 66,7 %, top-3 90,5 %; prva inačica 42,9 % i 59,5 %.
+  Detalji i napomena o pristranosti su u [evaluacija_pretrage.md](evaluacija_pretrage.md).
 
 ## 7. Tržišni odlomak (D8)
 

@@ -5,6 +5,7 @@ Datoteke:
   jls.json                svi JLS-ovi s demografijom, indeksom razvijenosti i pokrivenošću NKD-a (D11)
   odjeljci.json           NKD 2025 odjeljci: naziv, područje, oznaka obrta (D3), je li modeliran, broj u RH
   razredi.json            NKD 2025 razredi s nazivima i sinonimima (za pretragu iz teksta, D7)
+  nkd_opisi.json          službeni opisi razreda NKD 2025 (uključuje / upute "vidi") za pretragu iz teksta
   deficit/<sifra>.json    za jedan JLS: svi odjeljci (stvarno, očekivano, interval, semafor) i broj po razredu
   odjeljak/<odj>.json     za jedan odjeljak: svi JLS-ovi (karta i pregled županije)
   jls.geojson             granice JLS-a (DGU)
@@ -26,6 +27,7 @@ import numpy as np
 import pandas as pd
 
 import nkd
+import nkd_opisi
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -158,6 +160,8 @@ def main() -> int:
         "razred": r.razred, "naziv": r.naziv, "odjeljak": r.odjeljak, "sinonimi": sin.get(r.razred, ""),
         "broj_rh": int(raz_rh.get(r.razred, 0)),
     } for r in raz_t.itertuples() if r.odjeljak in poznati])
+    # Službeni opisi razreda (DZS publikacija NKD 2025) za pretragu iz teksta, D7.
+    nkd_opisi.zapisi_json(WEB / "nkd_opisi.json")
 
     # --- deficit/<jls>.json
     raz_po_jls = {s: dict(zip(g.razred, g.broj.astype(int))) for s, g in raz.groupby("sifra_opcine")}

@@ -191,7 +191,12 @@ Ako se šifre ne slažu, spajaj po normaliziranom nazivu JLS-a i županiji te ru
   - Metrike: Poissonova devijanca i MAE prema baselineu, pokrivenost 80 % intervala (cilj 0,75–0,85), PIT histogram.
   - Rezultati idu u `docs/evaluacija.md` i u video.
 - **D7. NKD prijedlog iz teksta:**
-  - v1: fuzzy pretraga (Fuse.js) nad službenim nazivima NKD razreda i ručnim sinonimima.
+  - v1: fuzzy pretraga (Fuse.js) nad službenim nazivima NKD razreda i ručnim sinonimima. **Zamijenjeno 28.10. (v1.5)**: na novim
+    opisima v1 je imao top-3 59,5 % ("solarni paneli" -> stolarija, jer je sličnost slova, a ne značenja).
+  - v1.5 (28.10., Domagoj prijavio problem): leksička pretraga nad **službenim opisima razreda iz DZS publikacije NKD 2025**
+    (`pipeline/nkd_opisi.py`: uključuje + upute "vidi" iz isključuje, 6.193 opisa), IDF težine, tipfeleri samo za riječi izvan rječnika,
+    poticaj odjeljcima prema vrsti posla. Najbolji prijedlog se odabire sam (osim ako je pokrivenost < 0,3; pokrivenost ne razlikuje točne od netočnih, pa nije mjera točnosti), uz prikaz službenog teksta "zašto".
+    Novi skup 42 opisa (`nkd_test_opisi_novi.csv`): top-1 66,7 %, top-3 90,5 %. Fuse.js uklonjen iz ovisnosti.
   - v2, ako stigne: `multilingual-e5-small` (MIT licenca) u pregledniku preko transformers.js, s unaprijed izračunatim embeddinzima NKD naziva.
   - Evaluacija: top-1 i top-3 točnost na oko 100 ručno označenih opisa ideja.
 - **D8. Tržišni odlomak:** deterministički predložak. Svaka brojka dolazi iz podataka i ima izvor. **Bez LLM-a u v1.**
@@ -313,7 +318,7 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
 4. Kod piši čitljivo, s kratkim komentarima na hrvatskom koji objašnjavaju *zašto*. Domagoj će kod učiti naknadno. Uz veće module dodaj kratak "kako ovo radi" u `docs/`.
 5. Tajne nikad ne ispisuj ni ne commitaj. Prije svakog commita provjeri `git diff`.
 6. Svaku novu odluku ili činjenicu o podacima zapiši u odjeljak 9 ili 10.
-7. Python 3.11+, `requests`, `pandas`, `pyarrow`, `duckdb`, `statsmodels`, `scikit-learn`. Web: Vite, React, TS, MapLibre GL, Fuse.js. Sve open-source; licence navedi u `DATA_SOURCES.md` i README-u.
+7. Python 3.11+, `requests`, `pandas`, `pyarrow`, `duckdb`, `statsmodels`, `scikit-learn`. Web: Vite, React, TS, MapLibre GL. Sve open-source; licence navedi u `DATA_SOURCES.md` i README-u.
 8. Komuniciraj s Domagojem na hrvatskom, kratko i konkretno. Kad nešto mora napraviti on (registracije, tajne, prijave), reci točno korak po korak.
 
 ## 9. Dnevnik odluka i provjera
@@ -358,6 +363,10 @@ Inače prelazimo na plan B, "Zdravlje Portala" (asistent kvalitete metapodataka 
 - [x] D7 evaluacija (28.10.): 104 opisa u `data/reference/nkd_test_opisi.csv`. v1 izvan uzorka: top-1 87,5 %, top-3 89,4 %.
       Nakon općih izmjena (sinonimi kao polje + ignoreFieldNorm, lagani stemmer, manja težina generičkih riječi): top-1 90,4 %, top-3 97,1 % (djelomično u uzorku).
       Nepristrana procjena traži nove opise od korisnika (test 5.11.). Skripta: `npm run eval:pretraga` u `web/`.
+- [x] D7 v1.5 (28.10.): pretraga nad službenim opisima NKD 2025, vidi D7. Novi skup: top-3 59,5 % -> 90,5 %. Jedna oznaka u starom skupu
+      bila je kriva (krovopokrivački radovi su u NKD 2025 razred 43.41, ne 43.99), ispravljen i sinonim.
+- [ ] Lokalno: Windows Smart App Control blokira DLL pandasa u `.venv` ("An Application Control policy has blocked this file").
+      Pipeline na GitHubu radi normalno. Lokalno: `pip install --force-reinstall pandas` ili isključiti Smart App Control.
 - [x] GitHub runner ima pristup Sudreg API-ju (28.10.): "Test pristupa" prošao, noćni workflow dohvatio sve tablice (pipeline 5,5 min) i objavio stranicu.
       Upozorenja "Node.js 20 is deprecated" u Actionsima su bezopasna (akcije se izvode na Node 24); verzije akcija podići kad izađu nove glavne verzije.
 - [ ] Šifre u `pretezite_djelatnosti` s NKD 2002 (2 retka) nemaju pravilo mapiranja u D12.

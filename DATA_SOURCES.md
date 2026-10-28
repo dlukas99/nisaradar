@@ -42,7 +42,9 @@ Sudski registar se dohvaća ponovno svake noći, a ostale referentne tablice jed
 - **Licenca:** Otvorena dozvola RH
 - **Dohvat:** 27.10.2026.
 - **Koristimo:** službeno mapiranje razreda NKD 2007 na podrazrede NKD 2025 (1.010 parova, svih 615 razreda NKD 2007)
-- **Skripta:** `pipeline/nkd_korespondencija.py` → `data/reference/nkd_2007_2025.csv`
+  i objašnjenja razreda ("Ovaj podrazred uključuje / isključuje ..., vidi") za pretragu djelatnosti iz teksta (6.193 opisa)
+- **Skripta:** `pipeline/nkd_korespondencija.py` → `data/reference/nkd_2007_2025.csv`;
+  `pipeline/nkd_opisi.py` → `data/reference/nkd2025_opisi.csv`
 - Nazivi odjeljaka i razreda NKD 2025 uzimaju se iz Sudregova šifrarnika → `data/reference/nkd2025_*.csv`
 
 ## 5. Upravne jedinice – INSPIRE (Registar prostornih jedinica)
@@ -83,7 +85,7 @@ dozvola RH, uz navođenje izvora iz ove datoteke.
 | statsmodels | BSD-3-Clause | NegBin GLM |
 | scikit-learn | BSD-3-Clause | GroupKFold, GBM izazivač |
 | openpyxl | MIT | čitanje DZS XLSX |
-| pdfplumber | MIT | čitanje PDF-a (indeks, tablica veza) |
+| pdfplumber | MIT | čitanje PDF-a (indeks, tablica veza, opisi razreda NKD) |
 | lxml | BSD-3-Clause | strujno čitanje GML-a |
 | shapely | BSD-3-Clause | pojednostavljenje geometrije |
 | pyproj | MIT | EPSG:3035 → WGS84 |
@@ -91,7 +93,6 @@ dozvola RH, uz navođenje izvora iz ove datoteke.
 | Vite | MIT | build weba |
 | TypeScript | Apache-2.0 | tipovi |
 | MapLibre GL JS | BSD-3-Clause | karta |
-| Fuse.js | Apache-2.0 | fuzzy pretraga djelatnosti |
 
 AI alati: pri razvoju je korišten AI asistent za programiranje Claude Code (Anthropic). Rješenje u radu ne koristi
 zatvorene AI usluge.

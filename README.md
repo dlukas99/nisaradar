@@ -19,8 +19,9 @@ Za svaki rezultat daje i gotov **tržišni odlomak s izvorima** za poslovni plan
 
 ## Što radi
 
-1. Korisnik opiše ideju ("frizerski salon"), a alat predloži razred NKD 2025. (fuzzy pretraga nad službenim
-   nazivima i ručnim sinonimima). Zatim korisnik odabere grad ili općinu.
+1. Korisnik opiše ideju ("projektiranje solarnih elektrana"), a alat predloži razred NKD 2025. Pretražuje službene
+   opise razreda iz DZS publikacije NKD 2025. i uz prijedlog prikaže tekst zbog kojeg je predložen. Zatim korisnik
+   odabere grad ili općinu.
 2. Alat prikaže semafor (**nedostaje / u ravnoteži / zasićeno**) uz brojke: *stvarno O, očekivano μ, 80 % raspon a–b*.
    Prikaže i graf cijele očekivane razdiobe, oznake pouzdanosti te objašnjenje "kako smo izračunali".
 3. Generira tržišni odlomak (deterministički predložak: svaka brojka iz podataka, s izvorom) za kopiranje ili ispis.
@@ -54,8 +55,9 @@ GroupKFold po županijama: model svaki put predviđa jednu županiju koju nije v
 
 Model je bolji od baselinea u 63 od 71 modeliranih odjeljaka. Izazivač (gradient boosting) nije bio bolji.
 
-Prijedlog djelatnosti iz teksta: na 104 ručno označena opisa ideja točan razred je među prva tri prijedloga u 97,1 %
-slučajeva (top-1 90,4 %). Detalji su u [docs/evaluacija_pretrage.md](docs/evaluacija_pretrage.md).
+Prijedlog djelatnosti iz teksta: na 42 nova opisa ideja, napisana prije izrade sadašnje pretrage, točan razred je među
+prva tri prijedloga u 90,5 % slučajeva (top-1 66,7 %; prva inačica imala je 59,5 % i 42,9 %). Detalji i napomena o
+pristranosti su u [docs/evaluacija_pretrage.md](docs/evaluacija_pretrage.md).
 
 ## Arhitektura
 
@@ -69,7 +71,7 @@ GitHub Actions (noćno) -> pipeline/run.py
    build.py         -> obuhvat, NKD 2025 odjeljak, matrica JLS × odjeljak
    model.py         -> NegBin GLM po odjeljku, semafor, evaluacija
    export.py        -> web/public/data/*.json + jls.geojson
-GitHub Pages <- web/ (Vite + React + TypeScript + MapLibre GL + Fuse.js)
+GitHub Pages <- web/ (Vite + React + TypeScript + MapLibre GL)
 ```
 
 ## Pokretanje lokalno
@@ -109,8 +111,8 @@ Objavljuju se samo agregati po JLS-u × djelatnosti.
 ## Alati i licence
 
 Kod: [EUPL-1.2](LICENSE). Korišteni open-source alati: Python (requests, python-dotenv, pandas, pyarrow, numpy, scipy,
-statsmodels, scikit-learn, openpyxl, pdfplumber, shapely, pyproj, lxml), web (React, Vite, TypeScript, MapLibre GL JS,
-Fuse.js). Licence su navedene u [DATA_SOURCES.md](DATA_SOURCES.md).
+statsmodels, scikit-learn, openpyxl, pdfplumber, shapely, pyproj, lxml), web (React, Vite, TypeScript, MapLibre GL JS).
+Licence su navedene u [DATA_SOURCES.md](DATA_SOURCES.md).
 
 Pri razvoju je korišten AI asistent za programiranje (Claude Code, Anthropic). Samo rješenje ne koristi zatvorene AI
 usluge: model je statistički (statsmodels), a tekstovi nastaju iz determinističkih predložaka.

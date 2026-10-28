@@ -21,7 +21,7 @@ koju treba održavati, a svaka objavljena brojka ima trag u gitu (koji snapshot,
                 │ export.py (iz data/snapshot) → npm ci → vite build → GitHub Pages        │
                 └───────────────────────────────┬──────────────────────────────────────────┘
                                                 ▼
-                 Preglednik: React + TypeScript (Vite), MapLibre GL, Fuse.js
+                 Preglednik: React + TypeScript (Vite), MapLibre GL
                  čita /data/*.json; datumi izvora uživo iz data.gov.hr CKAN API-ja (JSONP)
 ```
 

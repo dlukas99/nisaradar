@@ -155,7 +155,7 @@ export function Izvori({ d }: { d: Osnovno }) {
           shema u <code>docs/openapi.yaml</code>).
         </p>
         <p className="small muted">
-          Izrađeno otvorenim alatima: Python (pandas, statsmodels, scikit-learn), React, MapLibre GL, Fuse.js.
+          Izrađeno otvorenim alatima: Python (pandas, statsmodels, scikit-learn), React, MapLibre GL.
           Pri razvoju je korišten AI asistent za programiranje (Claude, Anthropic). Sam alat ne koristi zatvorene AI usluge.
         </p>
       </div>

@@ -43,7 +43,7 @@ export function Pocetna({ d }: { d: Osnovno }) {
             odabrani={razred}
             onOdaberi={(r) => {
               setRazred(r);
-              setOdjeljak(r.odjeljak);
+              setOdjeljak(r?.odjeljak ?? "");
             }}
           />
           <details style={{ marginTop: 12 }}>

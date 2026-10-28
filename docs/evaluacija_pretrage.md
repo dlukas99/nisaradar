@@ -1,35 +1,61 @@
 # Evaluacija prijedloga djelatnosti iz teksta (D7)
 
-> Generira `web/scripts/eval_pretraga.ts` (oznaka izvođenja: v2, nakon općih izmjena (vidi napomenu)). Testni skup: `data/reference/nkd_test_opisi.csv`.
+> Generira `web/scripts/eval_pretraga.ts` (`npm run eval:pretraga`). Testni skupovi: `data/reference/nkd_test_opisi.csv`
+> (104 opisa) i `data/reference/nkd_test_opisi_novi.csv` (42 opisa).
 
-Testni skup ima 104 ručno označenih opisa ideja, napisanih kako bi ih korisnik tipkao. Za svaki je zadan točan razred NKD 2025
-i, gdje je to opravdano, prihvatljive alternative (npr. "pekara" je 10.71 ili 47.24).
+Svaki opis je napisan kako bi ga korisnik tipkao ("zelkim biti projektant za solarne panele", s tipfelerom). Za svaki je zadan
+točan razred NKD 2025 i, gdje je to opravdano, prihvatljive alternative (npr. "pekara" je 10.71 ili 47.24).
 
-| Mjera | Vrijednost |
-|---|---|
-| Top-1 točnost (prvi prijedlog je točan razred) | **90,4 %** |
-| Top-3 točnost (točan razred je među prva tri) | **97,1 %** |
-| Prvi prijedlog u točnom odjeljku (razina na kojoj radi model) | **92,3 %** |
-| Opisa bez ijednog prijedloga | 0 |
+## Kako pretraga radi
 
-Korisnik uvijek sam bira među prijedlozima, a može odabrati i odjeljak izravno, pa je za UX ključna top-3 točnost.
+Pretraga čita **službene opise razreda iz DZS publikacije NKD 2025** (`pipeline/nkd_opisi.py`): nazive razreda i podrazreda,
+stavke "Ovaj podrazred uključuje" i upute iz tuđih "isključuje ..., vidi XX.XX" (npr. "ugradnju solarnih panela, vidi 43.21.0").
+Ukupno 6.193 službena opisa za 646 od 651 razreda, uz ručne sinonime za razgovorne riječi ("kafić", "frizer").
 
-## Poštena napomena o razvoju
+- Riječ upita mora postojati u opisu (isti korijen nakon skidanja nastavaka). Približno podudaranje slova koristi se samo za
+  riječi kojih nema u rječniku (tipfeleri), pa "solarni" više ne nalazi "stolariju".
+- Rijetke riječi vrijede više ("solarn" više od "proizvodnj"); nagrađuje se opis u kojem se riječi upita pojavljuju zajedno.
+- Riječ koja označava vrstu posla (projektiranje, ugradnja, proizvodnja, prodaja, popravak...) daje prednost odgovarajućim
+  odjeljcima (71, 43, 10–33, 47, 95...).
+- Najbolji prijedlog se odabire sam, uz službeni tekst zbog kojeg je predložen. Kad alat ne prepozna većinu riječi opisa
+  (pokrivenost < 0,3), kaže da nije siguran i ne odabire ga sam. Pokrivenost ne razlikuje točne od netočnih prijedloga
+  (na oba skupa svi točni i svi netočni prvi prijedlozi imaju pokrivenost ≥ 0,3), pa nije prikazana kao mjera sigurnosti.
 
-Prvo mjerenje (v1, prije ikakve dorade, izvan uzorka) dalo je **top-1 87,5 %, top-3 89,4 %**. Promašaji su zatim
-analizirani i napravljene su tri **opće** izmjene logike pretrage, bez dodavanja sinonima za testne primjere:
+## Rezultati
 
-1. svaki sinonim se uspoređuje zasebno, bez kazne za duljinu polja (dugi službeni nazivi);
-2. lagano skidanje hrvatskih nastavaka ("knjigovodstveni" ≈ "knjigovodstvo");
-3. manja težina generičkih riječi ("servis", "ured", "radionica").
+| Skup i inačica | Top-1 | Top-3 | Prvi prijedlog u točnom odjeljku | Bez prijedloga |
+|---|---|---|---|---|
+| Stari skup – samo nazivi i sinonimi | 95,2 % | 99,0 % | 96,2 % | 0 |
+| Stari skup – sa službenim opisima | 94,2 % | 100,0 % | 95,2 % | 0 |
+| **Novi skup – samo nazivi i sinonimi** | 57,1 % | 71,4 % | 69,0 % | 1 |
+| **Novi skup – sa službenim opisima** | 66,7 % | 90,5 % | 81,0 % | 0 |
 
-Rezultat iznad je nakon tih izmjena, pa je djelomično "u uzorku". Za nepristranu procjenu treba novi skup opisa
-od stvarnih korisnika (test 5.11.).
+Korisnik uvijek može odabrati drugi prijedlog ili odjeljak izravno, pa je za UX ključna top-3 točnost.
 
-## Promašaji (točan razred nije među prva tri)
+## Poštena napomena o pristranosti
+
+- **Stari skup** (104 opisa, 28.10.) korišten je za razvoj prve inačice (Fuse.js nad nazivima i sinonimima): sinonimi i pravila
+  su dorađivani na njegovim promašajima. Visoka točnost na njemu je zato optimistična. Prvo mjerenje prve inačice, prije dorade,
+  bilo je top-1 87,5 % i top-3 89,4 %. Jedna oznaka je ispravljena: krovopokrivački radovi su u NKD 2025 razred 43.41, ne 43.99.
+- **Novi skup** (42 opisa) napisan je prije izrade nove pretrage, s drugim zanimanjima. Na njemu je prva inačica imala
+  **top-1 42,9 % i top-3 59,5 %**: pretraga po sličnosti slova nije razumjela opise izvan svojih sinonima. To je bio stvarni problem
+  koji je primijetio i korisnik ("projektiranje solarnih panela" -> stolarija).
+- Promašaji stare pretrage na novom skupu bili su viđeni prije izrade nove, a dva opća pravila ("prodaja" = trgovina na malo,
+  "automobil" = motorno vozilo) dodana su nakon prvog mjerenja nove pretrage. Ni novi skup zato nije potpuno nepristran.
+- **Nepristranu procjenu daje tek test s korisnicima (5.11.)**: njihove opise treba zapisati prije nego što se pretraga na njima
+  ispravlja.
+
+## Promašaji na novom skupu (točan razred nije među prva tri)
 
 | Opis | Točno | Prva tri prijedloga |
 |---|---|---|
-| bravarska radionica i izrada ograda | 25.11 | 62.10 |
-| psihološko savjetovanje | 86.93 | 70.20, 62.20, 69.20 |
-| selidbe i prijevoz namještaja | 49.42 | 31.00, 49.41, 49.33 |
+| prodaja auto dijelova | 47.82 | 47.30, 47.81, 46.87 |
+| skladište i logistika za web trgovine | 52.10 | 47.91, 62.10, 68.20 |
+| razvoj video igara | 62.10 | 59.11, 74.20, 60.20 |
+| održavanje stambenih zgrada | 81.10 | 81.30, 81.21, 81.22 |
+
+## Promašaji na starom skupu
+
+| Opis | Točno | Prva tri prijedloga |
+|---|---|---|
+| – | | |
