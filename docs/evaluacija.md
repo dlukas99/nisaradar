@@ -14,13 +14,13 @@
 
 | Metrika | Baseline | GLM NegBin (v1) | GBM izazivač |
 |---|---|---|---|
-| Poissonova devijanca (niže je bolje) | 2.842 | **1.523** | 1.625 |
-| MAE (subjekata po ćeliji) | 2.252 | **1.576** | 1.586 |
+| Poissonova devijanca (niže je bolje) | 2.842 | **1.526** | 1.625 |
+| MAE (subjekata po ćeliji) | 2.252 | **1.580** | 1.586 |
 
 - GLM je bolji od baselinea (po devijanci) u **63 od 71** odjeljaka.
 - GBM je bolji od GLM-a u 32 od 71 odjeljaka. GBM ukupno ne pobjeđuje GLM, pa po D4 ostaje GLM (interpretabilan, s prirodnim intervalima).
 - **Pokrivenost 80 % intervala (randomizirani PIT): 0.754** (cilj 0,75–0,85).
-  Doslovna pokrivenost cjelobrojnog intervala [10., 90. percentil] je 0.935. Viša je jer kod malih
+  Doslovna pokrivenost cjelobrojnog intervala [10., 90. percentil] je 0.936. Viša je jer kod malih
   očekivanja (npr. μ = 0,3 daje interval 0–1) cjelobrojni interval nužno pokriva puno više od 80 %.
 - Semafor (D5) koristi p = P(Y ≤ O), što je za diskretne brojeve konzervativno: "nedostaje" se pojavljuje rjeđe od 10 %.
   To je namjerno. U velikoj većini ćelija očekivanje je toliko malo da ni 0 subjekata nije neobično, pa se deficit tamo ne može tvrditi.
@@ -31,7 +31,7 @@
 
 | 0,0–0,1 | 0,1–0,2 | 0,2–0,3 | 0,3–0,4 | 0,4–0,5 | 0,5–0,6 | 0,6–0,7 | 0,7–0,8 | 0,8–0,9 | 0,9–1,0 |
 |---|---|---|---|---|---|---|---|---|---|
-| 0.140 | 0.071 | 0.083 | 0.072 | 0.083 | 0.120 | 0.118 | 0.103 | 0.104 | 0.106 |
+| 0.141 | 0.071 | 0.083 | 0.073 | 0.083 | 0.120 | 0.118 | 0.103 | 0.104 | 0.105 |
 
 Rubni razredi (0,0–0,1 i 0,9–1,0) su upravo udjeli ćelija koje semafor označava kao "nedostaje" i "zasićeno".
 Ako je model dobro kalibriran, svaki je oko 10 %.
@@ -59,8 +59,8 @@ Ta dva izvora slažu se u 73.3% subjekata koji imaju oba. Zato smo model ponovil
 | … | | | | |
 | 46 Trgovina na veliko | 13.02 | 4.09 | 5.91 | 0.88 |
 | 47 Trgovina na malo | 6.80 | 2.04 | 3.40 | 0.88 |
-| 62 Računalno programiranje, savjetovanje i djela | 12.36 | 2.87 | 5.58 | 0.86 |
-| 73 Djelatnosti promidžbe, istraživanje tržišta i | 5.00 | 0.92 | 2.38 | 0.93 |
+| 62 Računalno programiranje, savjetovanje i djela | 12.36 | 3.00 | 5.58 | 0.92 |
+| 73 Djelatnosti promidžbe, istraživanje tržišta i | 5.00 | 0.96 | 2.38 | 0.93 |
 | 70 Upravljačke djelatnosti i savjetovanje u vezi | 15.80 | 2.71 | 5.74 | 0.90 |
 
 ## Ograničenja
