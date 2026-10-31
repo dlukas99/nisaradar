@@ -14,11 +14,11 @@
 
 | Metrika | Baseline | GLM NegBin (v1) | GBM izazivač |
 |---|---|---|---|
-| Poissonova devijanca (niže je bolje) | 2.843 | **1.523** | 1.604 |
-| MAE (subjekata po ćeliji) | 2.253 | **1.571** | 1.574 |
+| Poissonova devijanca (niže je bolje) | 2.843 | **1.524** | 1.644 |
+| MAE (subjekata po ćeliji) | 2.253 | **1.572** | 1.585 |
 
 - GLM je bolji od baselinea (po devijanci) u **63 od 71** odjeljaka.
-- GBM je bolji od GLM-a u 32 od 71 odjeljaka. GBM ukupno ne pobjeđuje GLM, pa po D4 ostaje GLM (interpretabilan, s prirodnim intervalima).
+- GBM je bolji od GLM-a u 33 od 71 odjeljaka. GBM ukupno ne pobjeđuje GLM, pa po D4 ostaje GLM (interpretabilan, s prirodnim intervalima).
 - **Pokrivenost 80 % intervala (randomizirani PIT): 0.757** (cilj 0,75–0,85).
   Doslovna pokrivenost cjelobrojnog intervala [10., 90. percentil] je 0.937. Viša je jer kod malih
   očekivanja (npr. μ = 0,3 daje interval 0–1) cjelobrojni interval nužno pokriva puno više od 80 %.
@@ -31,7 +31,7 @@
 
 | 0,0–0,1 | 0,1–0,2 | 0,2–0,3 | 0,3–0,4 | 0,4–0,5 | 0,5–0,6 | 0,6–0,7 | 0,7–0,8 | 0,8–0,9 | 0,9–1,0 |
 |---|---|---|---|---|---|---|---|---|---|
-| 0.141 | 0.072 | 0.083 | 0.073 | 0.083 | 0.121 | 0.118 | 0.103 | 0.104 | 0.102 |
+| 0.141 | 0.071 | 0.083 | 0.073 | 0.083 | 0.121 | 0.117 | 0.103 | 0.104 | 0.102 |
 
 Rubni razredi (0,0–0,1 i 0,9–1,0) su upravo udjeli ćelija koje semafor označava kao "nedostaje" i "zasićeno".
 Ako je model dobro kalibriran, svaki je oko 10 %.
@@ -40,28 +40,28 @@ Ako je model dobro kalibriran, svaki je oko 10 %.
 
 Glavni model koristi pretežitu djelatnost, a gdje je nema `subjekti.glavna_djelatnost` (NKD 2007 mapiran na 2025).
 Ta dva izvora slažu se u 73.3% subjekata koji imaju oba. Zato smo model ponovili
-**samo na pretežitoj djelatnosti** (81,246 subjekata umjesto 132,460).
+**samo na pretežitoj djelatnosti** (81,274 subjekata umjesto 132,477).
 
 - Semafor je isti u **95.9%** ćelija JLS × odjeljak.
-- Od ćelija koje glavni model označava kao "nedostaje", 38.9% je "nedostaje" i u modelu samo na pretežitoj.
-- Od ćelija koje glavni model označava kao "zasićeno", 63.2% je "zasićeno" i u modelu samo na pretežitoj.
+- Od ćelija koje glavni model označava kao "nedostaje", 39.2% je "nedostaje" i u modelu samo na pretežitoj.
+- Od ćelija koje glavni model označava kao "zasićeno", 63.1% je "zasićeno" i u modelu samo na pretežitoj.
 - Suprotan ishod (nedostaje ↔ zasićeno): 0 ćelija.
 
 ## Odjeljci s najmanjim i najvećim dobitkom prema baselineu
 
 | Odjeljak | Devijanca baseline | GLM | GBM | Pokrivenost 80 % |
 |---|---|---|---|---|
-| 39 Djelatnosti sanacije okoliša i ostale djelatn | 0.27 | 0.31 | 0.28 | 0.97 |
+| 39 Djelatnosti sanacije okoliša i ostale djelatn | 0.27 | 0.31 | 0.27 | 0.97 |
 | 24 Proizvodnja metala | 0.35 | 0.38 | 0.36 | 0.97 |
-| 11 Proizvodnja pića | 1.53 | 1.60 | 1.45 | 0.94 |
-| 23 Proizvodnja ostalih nemetalnih mineralnih pro | 1.18 | 1.22 | 1.15 | 0.93 |
+| 11 Proizvodnja pića | 1.53 | 1.60 | 1.43 | 0.94 |
+| 23 Proizvodnja ostalih nemetalnih mineralnih pro | 1.18 | 1.22 | 1.16 | 0.93 |
 | 88 Djelatnosti socijalne skrbi bez smještaja | 0.32 | 0.33 | 0.33 | 0.97 |
 | … | | | | |
-| 46 Trgovina na veliko | 13.01 | 4.09 | 6.35 | 0.88 |
-| 47 Trgovina na malo | 6.81 | 2.04 | 2.95 | 0.88 |
-| 62 Računalno programiranje, savjetovanje i djela | 12.38 | 3.01 | 5.58 | 0.92 |
-| 73 Djelatnosti promidžbe, istraživanje tržišta i | 5.00 | 0.91 | 2.43 | 0.93 |
-| 70 Upravljačke djelatnosti i savjetovanje u vezi | 15.81 | 2.71 | 5.21 | 0.91 |
+| 46 Trgovina na veliko | 13.01 | 4.09 | 5.71 | 0.88 |
+| 47 Trgovina na malo | 6.80 | 2.05 | 3.10 | 0.88 |
+| 62 Računalno programiranje, savjetovanje i djela | 12.39 | 3.01 | 6.32 | 0.92 |
+| 73 Djelatnosti promidžbe, istraživanje tržišta i | 5.00 | 0.90 | 2.42 | 0.93 |
+| 70 Upravljačke djelatnosti i savjetovanje u vezi | 15.81 | 2.71 | 6.13 | 0.91 |
 
 ## Ograničenja
 
