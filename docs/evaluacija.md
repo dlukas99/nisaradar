@@ -31,7 +31,7 @@
 
 | 0,0–0,1 | 0,1–0,2 | 0,2–0,3 | 0,3–0,4 | 0,4–0,5 | 0,5–0,6 | 0,6–0,7 | 0,7–0,8 | 0,8–0,9 | 0,9–1,0 |
 |---|---|---|---|---|---|---|---|---|---|
-| 0.141 | 0.071 | 0.083 | 0.073 | 0.083 | 0.121 | 0.117 | 0.103 | 0.104 | 0.102 |
+| 0.141 | 0.071 | 0.083 | 0.073 | 0.083 | 0.121 | 0.118 | 0.103 | 0.104 | 0.102 |
 
 Rubni razredi (0,0–0,1 i 0,9–1,0) su upravo udjeli ćelija koje semafor označava kao "nedostaje" i "zasićeno".
 Ako je model dobro kalibriran, svaki je oko 10 %.
@@ -60,7 +60,7 @@ Ta dva izvora slažu se u 73.3% subjekata koji imaju oba. Zato smo model ponovil
 | 46 Trgovina na veliko | 13.01 | 4.09 | 5.71 | 0.88 |
 | 47 Trgovina na malo | 6.80 | 2.05 | 3.10 | 0.88 |
 | 62 Računalno programiranje, savjetovanje i djela | 12.39 | 3.01 | 6.32 | 0.92 |
-| 73 Djelatnosti promidžbe, istraživanje tržišta i | 5.00 | 0.90 | 2.42 | 0.93 |
+| 73 Djelatnosti promidžbe, istraživanje tržišta i | 5.00 | 0.91 | 2.42 | 0.93 |
 | 70 Upravljačke djelatnosti i savjetovanje u vezi | 15.81 | 2.71 | 6.13 | 0.91 |
 
 ## Ograničenja
