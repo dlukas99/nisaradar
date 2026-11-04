@@ -14,24 +14,24 @@
 
 | Metrika | Baseline | GLM NegBin (v1) | GBM izazivač |
 |---|---|---|---|
-| Poissonova devijanca (niže je bolje) | 2.844 | **1.524** | 1.624 |
-| MAE (subjekata po ćeliji) | 2.253 | **1.575** | 1.572 |
+| Poissonova devijanca (niže je bolje) | 2.844 | **1.525** | 1.626 |
+| MAE (subjekata po ćeliji) | 2.254 | **1.575** | 1.591 |
 
 - GLM je bolji od baselinea (po devijanci) u **63 od 71** odjeljaka.
-- GBM je bolji od GLM-a u 34 od 71 odjeljaka. GBM ukupno ne pobjeđuje GLM, pa po D4 ostaje GLM (interpretabilan, s prirodnim intervalima).
+- GBM je bolji od GLM-a u 32 od 71 odjeljaka. GBM ukupno ne pobjeđuje GLM, pa po D4 ostaje GLM (interpretabilan, s prirodnim intervalima).
 - **Pokrivenost 80 % intervala (randomizirani PIT): 0.757** (cilj 0,75–0,85).
   Doslovna pokrivenost cjelobrojnog intervala [10., 90. percentil] je 0.937. Viša je jer kod malih
   očekivanja (npr. μ = 0,3 daje interval 0–1) cjelobrojni interval nužno pokriva puno više od 80 %.
 - Semafor (D5) koristi p = P(Y ≤ O), što je za diskretne brojeve konzervativno: "nedostaje" se pojavljuje rjeđe od 10 %.
   To je namjerno. U velikoj većini ćelija očekivanje je toliko malo da ni 0 subjekata nije neobično, pa se deficit tamo ne može tvrditi.
 - Osječko-baranjska (pilot): devijanca baseline 2.057, GLM 1.058;
-  MAE baseline 1.662, GLM 0.946; pokrivenost 80 % (PIT) 0.795.
+  MAE baseline 1.663, GLM 0.947; pokrivenost 80 % (PIT) 0.795.
 
 ### PIT histogram (randomizirani, 10 razreda; idealno 0,100 u svakom)
 
 | 0,0–0,1 | 0,1–0,2 | 0,2–0,3 | 0,3–0,4 | 0,4–0,5 | 0,5–0,6 | 0,6–0,7 | 0,7–0,8 | 0,8–0,9 | 0,9–1,0 |
 |---|---|---|---|---|---|---|---|---|---|
-| 0.141 | 0.072 | 0.083 | 0.073 | 0.083 | 0.121 | 0.117 | 0.103 | 0.104 | 0.103 |
+| 0.141 | 0.071 | 0.083 | 0.073 | 0.083 | 0.121 | 0.117 | 0.103 | 0.104 | 0.102 |
 
 Rubni razredi (0,0–0,1 i 0,9–1,0) su upravo udjeli ćelija koje semafor označava kao "nedostaje" i "zasićeno".
 Ako je model dobro kalibriran, svaki je oko 10 %.
@@ -40,10 +40,10 @@ Ako je model dobro kalibriran, svaki je oko 10 %.
 
 Glavni model koristi pretežitu djelatnost, a gdje je nema `subjekti.glavna_djelatnost` (NKD 2007 mapiran na 2025).
 Ta dva izvora slažu se u 73.3% subjekata koji imaju oba. Zato smo model ponovili
-**samo na pretežitoj djelatnosti** (81,295 subjekata umjesto 132,486).
+**samo na pretežitoj djelatnosti** (81,338 subjekata umjesto 132,516).
 
 - Semafor je isti u **95.9%** ćelija JLS × odjeljak.
-- Od ćelija koje glavni model označava kao "nedostaje", 39.0% je "nedostaje" i u modelu samo na pretežitoj.
+- Od ćelija koje glavni model označava kao "nedostaje", 39.5% je "nedostaje" i u modelu samo na pretežitoj.
 - Od ćelija koje glavni model označava kao "zasićeno", 63.3% je "zasićeno" i u modelu samo na pretežitoj.
 - Suprotan ishod (nedostaje ↔ zasićeno): 0 ćelija.
 
@@ -52,16 +52,16 @@ Ta dva izvora slažu se u 73.3% subjekata koji imaju oba. Zato smo model ponovil
 | Odjeljak | Devijanca baseline | GLM | GBM | Pokrivenost 80 % |
 |---|---|---|---|---|
 | 39 Djelatnosti sanacije okoliša i ostale djelatn | 0.27 | 0.31 | 0.27 | 0.97 |
-| 24 Proizvodnja metala | 0.35 | 0.38 | 0.37 | 0.97 |
-| 11 Proizvodnja pića | 1.53 | 1.61 | 1.44 | 0.94 |
-| 23 Proizvodnja ostalih nemetalnih mineralnih pro | 1.18 | 1.23 | 1.18 | 0.93 |
-| 88 Djelatnosti socijalne skrbi bez smještaja | 0.32 | 0.33 | 0.33 | 0.97 |
+| 24 Proizvodnja metala | 0.35 | 0.38 | 0.36 | 0.97 |
+| 11 Proizvodnja pića | 1.53 | 1.61 | 1.43 | 0.94 |
+| 23 Proizvodnja ostalih nemetalnih mineralnih pro | 1.18 | 1.23 | 1.16 | 0.93 |
+| 88 Djelatnosti socijalne skrbi bez smještaja | 0.32 | 0.33 | 0.32 | 0.97 |
 | … | | | | |
-| 64 Financijske uslužne djelatnosti, osim osigura | 1.78 | 0.55 | 1.34 | 0.96 |
-| 47 Trgovina na malo | 6.79 | 2.04 | 3.06 | 0.88 |
-| 62 Računalno programiranje, savjetovanje i djela | 12.39 | 3.01 | 6.08 | 0.92 |
-| 73 Djelatnosti promidžbe, istraživanje tržišta i | 5.01 | 0.93 | 2.34 | 0.93 |
-| 70 Upravljačke djelatnosti i savjetovanje u vezi | 15.82 | 2.72 | 6.11 | 0.91 |
+| 46 Trgovina na veliko | 13.02 | 4.09 | 5.95 | 0.88 |
+| 47 Trgovina na malo | 6.78 | 2.04 | 3.21 | 0.88 |
+| 62 Računalno programiranje, savjetovanje i djela | 12.41 | 3.01 | 5.65 | 0.92 |
+| 73 Djelatnosti promidžbe, istraživanje tržišta i | 5.01 | 0.93 | 2.28 | 0.93 |
+| 70 Upravljačke djelatnosti i savjetovanje u vezi | 15.81 | 2.71 | 5.60 | 0.91 |
 
 ## Ograničenja
 

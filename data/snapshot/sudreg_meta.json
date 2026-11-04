@@ -1,11 +1,11 @@
 {
-  "snapshot_id": 1353,
-  "snapshot_timestamp": "2026-11-02T19:00:00.191290",
-  "dohvaceno": "2026-11-03T07:23:48+00:00",
+  "snapshot_id": 1354,
+  "snapshot_timestamp": "2026-11-03T19:00:00.094297",
+  "dohvaceno": "2026-11-04T07:07:08+00:00",
   "redaka": {
-    "sjedista": 186639,
-    "pravni_oblici": 186639,
-    "pretezite_djelatnosti": 82740,
-    "subjekti": 186639
+    "sjedista": 186669,
+    "pravni_oblici": 186669,
+    "pretezite_djelatnosti": 82786,
+    "subjekti": 186669
   }
 }

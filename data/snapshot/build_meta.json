@@ -1,17 +1,17 @@
 {
-  "n_oba_izvora": 4359,
-  "slaganje_odjeljaka": 0.7331956870841936,
-  "n_jednoznacni": 3483,
-  "slaganje_jednoznacni": 0.732701693942004,
+  "n_oba_izvora": 4361,
+  "slaganje_odjeljaka": 0.7330887411144233,
+  "n_jednoznacni": 3485,
+  "slaganje_jednoznacni": 0.7325681492109039,
   "razreda_visestruko": 50,
-  "subjekata_u_obuhvatu": 174327,
-  "subjekata_s_odjeljkom": 132486,
+  "subjekata_u_obuhvatu": 174346,
+  "subjekata_s_odjeljkom": 132516,
   "izvor_odjeljka": {
-    "pretežita 2025": 78951,
-    "glavna 2007": 51191,
-    "bez šifre": 41840,
+    "pretežita 2025": 78994,
+    "glavna 2007": 51178,
+    "bez šifre": 41829,
     "pretežita 2007": 2345
   },
-  "prag_bez_sifre": 0.37699992496981205,
+  "prag_bez_sifre": 0.3768911547298526,
   "odjeljaka": 83
 }
